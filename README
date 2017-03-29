@@ -1,0 +1,18 @@
+c-dvar - D-Bus Variant Type-System
+
+DETAILS:
+        https://github.com/c-util/c-dvar
+
+BUG REPORTS:
+        https://github.com/c-util/c-dvar/issues
+
+GIT:
+        git@github.com:c-util/c-dvar.git
+        https://github.com/c-util/c-dvar.git
+
+GITWEB:
+        https://github.com/c-util/c-dvar
+
+LICENSE:
+        Apache Software License 2.0
+        See COPYING for details.
