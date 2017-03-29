@@ -1,0 +1,4 @@
+LIBCDVAR_1 {
+local:
+       *;
+};
