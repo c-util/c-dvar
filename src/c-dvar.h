@@ -24,6 +24,51 @@ extern "C" {
 #include <stdbool.h>
 #include <stdlib.h>
 
+typedef struct CDVarType CDVarType;
+
+/**
+ * C_DVAR_TYPE_LENGTH_MAX - XXX
+ */
+#define C_DVAR_TYPE_LENGTH_MAX (255)
+
+/**
+ * C_DVAR_TYPE_DEPTH_MAX - XXX
+ */
+#define C_DVAR_TYPE_DEPTH_MAX (64)
+
+enum {
+        _C_DVAR_E_SUCCESS,
+
+        /* type/signature parser */
+        C_DVAR_E_OVERLONG_TYPE,
+        C_DVAR_E_DEPTH_OVERFLOW,
+        C_DVAR_E_INVALID_TYPE,
+};
+
+/**
+ * struct CDVarType - XXX
+ */
+struct CDVarType {
+        uint32_t size : 11;
+        uint32_t alignment : 2;
+        uint32_t element : 7;
+        uint32_t length : 8;
+        uint32_t basic : 1;
+};
+
+/* type handling */
+
+int c_dvar_type_new_from_signature(CDVarType **typep, const char *signature, size_t n_signature);
+CDVarType *c_dvar_type_free(CDVarType *type);
+
+/**
+ * c_dvar_type_freep() - XXX
+ */
+static inline void c_dvar_type_freep(CDVarType **type) {
+        if (*type)
+                c_dvar_type_free(*type);
+}
+
 #ifdef __cplusplus
 }
 #endif

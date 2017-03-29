@@ -47,3 +47,6 @@ test('API Symbol Visibility', test_api)
 
 test_basic = executable('test-basic', ['test-basic.c'], dependencies: libcdvar_dep)
 test('Basic API Behavior', test_basic)
+
+test_type = executable('test-type', ['test-type.c'], dependencies: libcdvar_dep)
+test('Type and Signature Parser', test_type)

@@ -1,4 +1,7 @@
 LIBCDVAR_1 {
+global:
+        c_dvar_type_new_from_signature;
+        c_dvar_type_free;
 local:
        *;
 };
