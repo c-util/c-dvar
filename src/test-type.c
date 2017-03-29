@@ -232,7 +232,78 @@ static void test_known_types(void) {
         assert(expect == test_array + sizeof(test_array) / sizeof(*test_array));
 }
 
+static void test_valid_types(void) {
+        const char *signatures[] = {
+                "()",
+                "{tv}",
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaau",
+                "((((((((((((((((((((((((((((((((u))))))))))))))))))))))))))))))))",
+                "((((((((((((((((((((((((((((((((aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaau))))))))))))))))))))))))))))))))",
+                "a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(u))))))))))))))))))))))))))))))))",
+        };
+        CDVarType *type;
+        size_t i;
+        int r;
+
+        /*
+         * This parses the signatures provided by @signatures one by one, each
+         * of them must be valid. No further validation is done.
+         */
+
+        for (i = 0; i < sizeof(signatures) / sizeof(*signatures); ++i) {
+                r = c_dvar_type_new_from_signature(&type, signatures[i], strlen(signatures[i]));
+                assert(!r);
+                c_dvar_type_free(type);
+        }
+}
+
+static void test_invalid_types(void) {
+        const char *signatures[] = {
+                "A", /* invalid element */
+                "$", /* invalid element */
+                "{}", /* invalid pair */
+                "{)", /* non-matching brackets */
+                "(}", /* non-matching brackets */
+                "{()y}", /* invalid pair */
+                "{yyy}", /* invalid pair */
+                "(yy{))", /* non-matching brackets */
+                "(yy{}}", /* invalid pair */
+                "(yy{)}", /* non-matching brackets */
+                "(", /* unclosed container */
+                ")", /* closing wrong container */
+                "((", /* unclosed container */
+                ")(", /* closing wrong container */
+                "a", /* unclosed container */
+                "aaa", /* unclosed container */
+                "{aau}", /* invalid pair */
+                "{vu}", /* invalid pair*/
+                "(uu(u())uu{vu}uu)", /* invalid pair */
+                "(uu(u())uu(vu}uu)", /* non-matching brackets */
+                "(uu(u())uu{uu)uu)", /* non-matching brackets */
+                "(uu(u())uuuuuuuu}", /* non-matching brackets */
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaau", /* depth exceeded */
+                "(((((((((((((((((((((((((((((((((u)))))))))))))))))))))))))))))))))", /* depth exceeded */
+                "a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(au))))))))))))))))))))))))))))))))", /* depth exceeded */
+        };
+        CDVarType *type = NULL;
+        size_t i;
+        int r;
+
+        /*
+         * This parses the signatures provided by @signatures one by one, each
+         * of them must be rejected.
+         */
+
+        for (i = 0; i < sizeof(signatures) / sizeof(*signatures); ++i) {
+                r = c_dvar_type_new_from_signature(&type, signatures[i], strlen(signatures[i]));
+                assert(r != 0);
+                assert(r > 0);
+        }
+}
+
 int main(int argc, char **argv) {
         test_known_types();
+        test_valid_types();
+        test_invalid_types();
         return 0;
 }
