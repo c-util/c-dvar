@@ -48,5 +48,10 @@ test('API Symbol Visibility', test_api)
 test_basic = executable('test-basic', ['test-basic.c'], dependencies: libcdvar_dep)
 test('Basic API Behavior', test_basic)
 
+if libdbus_typenum_dep.found()
+        test_enumerated = executable('test-enumerated', ['test-enumerated.c'], dependencies: [ libcdvar_dep, libdbus_typenum_dep ])
+        test('Type / Data Verification with Enumerated Types', test_enumerated)
+endif
+
 test_type = executable('test-type', ['test-type.c'], dependencies: libcdvar_dep)
 test('Type and Signature Parser', test_type)

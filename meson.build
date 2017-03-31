@@ -6,5 +6,6 @@ project('c-dvar',
 
 add_project_arguments('-D_GNU_SOURCE', language: 'c')
 mod_pkgconfig = import('pkgconfig')
+libdbus_typenum_dep = dependency('libdbus-typenum', version: '>=1', required: false)
 
 subdir('src')
