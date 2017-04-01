@@ -29,7 +29,7 @@ static int c_dvar_write_data(CDVar *var, int alignment, const void *data, size_t
                 } else {
                         /* align to next power of 2 */
                         shift = sizeof(unsigned long long) * 8;
-                        shift -= __builtin_clzll(n_data - 1);
+                        shift -= __builtin_clzll(n - 1);
                         n = (unsigned long long)1 << shift;
                 }
 
