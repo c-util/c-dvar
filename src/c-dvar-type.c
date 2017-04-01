@@ -296,3 +296,41 @@ _public_ CDVarType *c_dvar_type_free(CDVarType *type) {
         free(type);
         return NULL;
 }
+
+/**
+ * c_dvar_type_compare_string() - compare type to string representation
+ * @subject:            type to compare, or NULL
+ * @object:             string representation to compare against
+ * @n_object:           length of @object
+ *
+ * This compares @subject to the string representation of a valid type, given
+ * as @object (with length @n_object). This returns -1, 0, or 1, if @subject
+ * orders before, equals, or orders after @object, respectively.
+ *
+ * Note that no validation of either input is done. This means, if the
+ * arguments do not equal, then the string representation might be an invalid
+ * type.
+ *
+ * Note that @subject can be NULL, even though this would not represent a valid
+ * type.
+ *
+ * Return: -1, 0, or 1, if @subject orders before, equals, or orders after
+ *         @object, respectively.
+ */
+_public_ int c_dvar_type_compare_string(const CDVarType *subject, const char *object, size_t n_object) {
+        static const CDVarType null = {};
+        int diff;
+
+        subject = subject ?: &null;
+
+        if (subject->length != n_object)
+                return (subject->length > n_object) ? 1 : -1;
+
+        while (n_object-- > 0) {
+                diff = subject++->element - *object++;
+                if (diff)
+                        return (diff > 0) ? 1 : -1 ;
+        }
+
+        return 0;
+}

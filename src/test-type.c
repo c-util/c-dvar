@@ -215,6 +215,9 @@ static void test_known_types(void) {
                 r = c_dvar_type_new_from_signature(&type, signature, n_signature);
                 assert(!r);
 
+                /* this is redunant, but tests the compare operator */
+                assert(!c_dvar_type_compare_string(type, signature, type->length));
+
                 for (i = 0; i < type->length; ++i) {
                         assert(expect[i].size == type[i].size);
                         assert(expect[i].alignment == type[i].alignment);

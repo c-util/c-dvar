@@ -61,6 +61,8 @@ struct CDVarType {
 int c_dvar_type_new_from_signature(CDVarType **typep, const char *signature, size_t n_signature);
 CDVarType *c_dvar_type_free(CDVarType *type);
 
+int c_dvar_type_compare_string(const CDVarType *subject, const char *object, size_t n_object);
+
 /**
  * c_dvar_type_freep() - XXX
  */
