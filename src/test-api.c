@@ -52,6 +52,19 @@ static void test_api(void) {
 
         var = c_dvar_free(var);
 
+        /* reader */
+
+        r = c_dvar_new(&var);
+        assert(!r);
+
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), &t, &u32, sizeof(u32));
+        c_dvar_read(var, "u", &value);
+        r = c_dvar_end_read(var);
+        assert(r >= 0);
+        assert(value == 7);
+
+        var = c_dvar_free(var);
+
         /* writer */
 
         r = c_dvar_new(&var);
@@ -64,19 +77,6 @@ static void test_api(void) {
         assert(data);
         assert(n_data);
         free(data);
-
-        var = c_dvar_free(var);
-
-        /* reader */
-
-        r = c_dvar_new(&var);
-        assert(!r);
-
-        c_dvar_begin_read(var, c_dvar_is_big_endian(var), &t, &u32, sizeof(u32));
-        c_dvar_read(var, "u", &value);
-        r = c_dvar_end_read(var);
-        assert(r >= 0);
-        assert(value == 7);
 
         var = c_dvar_free(var);
 }
