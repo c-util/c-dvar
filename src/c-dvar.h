@@ -28,12 +28,32 @@ typedef struct CDVar CDVar;
 typedef struct CDVarType CDVarType;
 
 /**
- * C_DVAR_TYPE_LENGTH_MAX - XXX
+ * C_DVAR_TYPE_LENGTH_MAX - Maximum length of a type signature
+ *
+ * Every valid D-Bus Type has a string representation, called its type
+ * signature. The maximum length of such a signature of a single complete type
+ * is defined by the D-Bus specification to be 255. The original limit only
+ * affects the maximum length of a signature of concatenated types. This,
+ * however, implies that a single type has the same limit.
+ *
+ * No signature of any type can ever exceed this length. There is no intention
+ * to every support longer signatures. If bigger types are needed, you better
+ * use a non-deprecated serialization like GVariant.
  */
 #define C_DVAR_TYPE_LENGTH_MAX (255)
 
 /**
- * C_DVAR_TYPE_DEPTH_MAX - XXX
+ * C_DVAR_TYPE_DEPTH_MAX - Maximum depth of a type signature
+ *
+ * Similar to C_DVAR_TYPE_LENGTH_MAX, this limits the complexity of any valid
+ * type signature. This limits the maximum depth of containers to 64. It is
+ * defined by the D-Bus specification and enforced by this implementation. The
+ * specification further restricts the depth among the different container
+ * types. See the specification for details.
+ *
+ * No signature of any type can ever exceed this depth. There is no intention
+ * to every support deeper signatures. If needed, you better use a
+ * non-deprecated serialization like GVariant.
  */
 #define C_DVAR_TYPE_DEPTH_MAX (64)
 
@@ -47,7 +67,22 @@ enum {
 };
 
 /**
- * struct CDVarType - XXX
+ * struct CDVarType - D-Bus Type Information
+ * @size:               size in bytes required for the serialization, 0 if dynamic
+ * @alignment:          required alignment, given as power of 2
+ * @element:            character code of this entry
+ * @length:             length of the full type, given as number of entries
+ * @basic:              whether this is a basic type
+ *
+ * Every valid D-Bus Type can be parsed into an array of CDVarType objects,
+ * containing detailed information about the type. The length of a parsed
+ * CDVarType array is the same as the length of the same type signature. That
+ * is, each character code in the type signature is parsed into a CDVarType
+ * object, based on its position in the signature.
+ *
+ * A CDVarType array contains recursive type-information for all sub-types of a
+ * valid type signature. For instance, the type array of '{sv}' is found
+ * unmodified in the type array of '(ua{sv})' at offset 3.
  */
 struct CDVarType {
         uint32_t size : 11;
@@ -87,7 +122,10 @@ int c_dvar_vwrite(CDVar *var, const char *format, va_list args);
 int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap);
 
 /**
- * c_dvar_type_freep() - XXX
+ * c_dvar_type_freep() - free type information
+ * @type:               type information to free
+ *
+ * This is the cleanup-helper for c_dvar_type_free().
  */
 static inline void c_dvar_type_freep(CDVarType **type) {
         if (*type)
@@ -95,7 +133,10 @@ static inline void c_dvar_type_freep(CDVarType **type) {
 }
 
 /**
- * c_dvar_freep() - XXX
+ * c_dvar_freep() - free variant
+ * @var:                variant to free
+ *
+ * This is the cleanup-helper for c_dvar_free().
  */
 static inline void c_dvar_freep(CDVar **var) {
         if (*var)
@@ -103,7 +144,15 @@ static inline void c_dvar_freep(CDVar **var) {
 }
 
 /**
- * c_dvar_read() - XXX
+ * c_dvar_read() - read data from variant
+ * @var:                variant to operate on
+ * @format:             format string
+ *
+ * This is the va_arg-based equivalent of c_dvar_vread(). See its documentation
+ * for details.
+ *
+ * Return: 0 on success, negative error code on fatal errors, positive error
+ *         code on parser failure.
  */
 static inline int c_dvar_read(CDVar *var, const char *format, ...) {
         va_list args;
@@ -116,7 +165,15 @@ static inline int c_dvar_read(CDVar *var, const char *format, ...) {
 }
 
 /**
- * c_dvar_skip() - XXX
+ * c_dvar_skip() - skip over data from variant
+ * @var:                variant to operate on
+ * @format:             format string
+ *
+ * This is the va_arg-based equivalent of c_dvar_vskip(). See its documentation
+ * for details.
+ *
+ * Return: 0 on success, negative error code on fatal errors, positive error
+ *         code on parser failure.
  */
 static inline int c_dvar_skip(CDVar *var, const char *format, ...) {
         va_list args;
@@ -129,7 +186,15 @@ static inline int c_dvar_skip(CDVar *var, const char *format, ...) {
 }
 
 /**
- * c_dvar_write() - XXX
+ * c_dvar_write() - write data to variant
+ * @var:                variant to operate on
+ * @format:             format string
+ *
+ * This is the va_arg-based equivalent of c_dvar_vwrite(). See its
+ * documentation for details.
+ *
+ * Return: 0 on success, negative error code on fatal errors, positive error
+ *         code on builder failure.
  */
 static inline int c_dvar_write(CDVar *var, const char *format, ...) {
         va_list args;
