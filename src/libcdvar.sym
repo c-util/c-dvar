@@ -14,6 +14,11 @@ global:
         c_dvar_get_root_type;
         c_dvar_get_parent_type;
 
+        c_dvar_begin_read;
+        c_dvar_more;
+        c_dvar_vread;
+        c_dvar_end_read;
+
         c_dvar_begin_write;
         c_dvar_vwrite;
         c_dvar_end_write;

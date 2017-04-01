@@ -1,15 +1,504 @@
 /*
- * Context Management
+ * Reader
  *
- * This file implements the generic management of the variant objects and other
- * library features.
+ * XXX
  */
 
 #include <assert.h>
+#include <byteswap.h>
+#include <endian.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include "c-dvar.h"
 #include "c-dvar-private.h"
+
+static bool c_dvar_is_path(const char *str) {
+        /* XXX: verify @str is a valid object path */
+        return true;
+}
+
+static bool c_dvar_is_signature(const char *str) {
+        /* XXX: verify @str is a valid signature */
+        return true;
+}
+
+static bool c_dvar_is_type(const char *str) {
+        /* XXX: verify @str is a valid signature with a single complete type */
+        return true;
+}
+
+static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_t n_data) {
+        size_t i, align;
+
+        align = ALIGN_TO(var->current->i_buffer, 1 << alignment) - var->current->i_buffer;
+
+        if (_unlikely_(var->current->n_buffer < align + n_data))
+                return -EBADMSG;
+
+        /*
+         * Verify alignment bytes are 0. Needed for compatibility with
+         * dbus-daemon.
+         */
+        for (i = 0; i < align; ++i)
+                if (_unlikely_(var->data[var->current->i_buffer + i]))
+                        return -EBADMSG;
+
+        if (datap)
+                *datap = var->data + var->current->i_buffer + align;
+
+        var->current->i_buffer += align + n_data;
+        var->current->n_buffer -= align + n_data;
+        return 0;
+}
+
+static uint32_t c_dvar_bswap16(CDVar *var, uint16_t v) {
+        return _likely_(!!var->big_endian == !!(__BYTE_ORDER == __BIG_ENDIAN)) ? v : bswap_16(v);
+}
+
+static uint32_t c_dvar_bswap32(CDVar *var, uint32_t v) {
+        return _likely_(!!var->big_endian == !!(__BYTE_ORDER == __BIG_ENDIAN)) ? v : bswap_32(v);
+}
+
+static uint32_t c_dvar_bswap64(CDVar *var, uint64_t v) {
+        return _likely_(!!var->big_endian == !!(__BYTE_ORDER == __BIG_ENDIAN)) ? v : bswap_64(v);
+}
+
+static int c_dvar_read_u8(CDVar *var, uint8_t *datap) {
+        const void *p;
+        int r;
+
+        r = c_dvar_read_data(var, 0, &p, sizeof(*datap));
+        if (_likely_(r >= 0))
+                *datap = *(const uint8_t *)p;
+
+        return r;
+}
+
+static int c_dvar_read_u16(CDVar *var, uint16_t *datap) {
+        const void *p;
+        int r;
+
+        r = c_dvar_read_data(var, 1, &p, sizeof(*datap));
+        if (_likely_(r >= 0))
+                *datap = c_dvar_bswap16(var, *(const uint16_t *)p);
+
+        return r;
+}
+
+static int c_dvar_read_u32(CDVar *var, uint32_t *datap) {
+        const void *p;
+        int r;
+
+        r = c_dvar_read_data(var, 2, &p, sizeof(*datap));
+        if (_likely_(r >= 0))
+                *datap = c_dvar_bswap32(var, *(const uint32_t *)p);
+
+        return r;
+}
+
+static int c_dvar_read_u64(CDVar *var, uint64_t *datap) {
+        const void *p;
+        int r;
+
+        r = c_dvar_read_data(var, 3, &p, sizeof(*datap));
+        if (_likely_(r >= 0))
+                *datap = c_dvar_bswap64(var, *(const uint64_t *)p);
+
+        return r;
+}
+
+static int c_dvar_dummy_vread(CDVar *var, const char *format, va_list args) {
+        void *p;
+        char c;
+
+        while ((c = *format++)) {
+                switch (c) {
+                case '[':
+                case '(':
+                case '{':
+                case ']':
+                case '>':
+                case ')':
+                case '}':
+                        /* no @args required */
+                        break;
+
+                case '<':
+                        p = va_arg(args, const char **);
+                        /* unused *input* argument */
+                        break;
+
+                case 'y':
+                        p = va_arg(args, uint8_t *);
+                        if (p)
+                                *(uint8_t *)p = 0;
+                        break;
+
+                case 'b':
+                        p = va_arg(args, bool *);
+                        if (p)
+                                *(bool *)p = false;
+                        break;
+
+                case 'n':
+                case 'q':
+                        p = va_arg(args, uint16_t *);
+                        if (p)
+                                *(uint16_t *)p = 0;
+                        break;
+
+                case 'i':
+                case 'h':
+                case 'u':
+                        p = va_arg(args, uint32_t *);
+                        if (p)
+                                *(uint32_t *)p = 0;
+                        break;
+
+                case 'x':
+                case 't':
+                        p = va_arg(args, uint64_t *);
+                        if (p)
+                                *(uint64_t *)p = 0;
+                        break;
+
+                case 'd':
+                        p = va_arg(args, double *);
+                        if (p)
+                                *(double *)p = 0;
+                        break;
+
+                case 's':
+                case 'g':
+                        p = va_arg(args, const char **);
+                        if (p)
+                                *(const char **)p = "";
+                        break;
+
+                case 'o':
+                        p = va_arg(args, const char **);
+                        if (p)
+                                *(const char **)p = "/";
+                        break;
+
+                case 'a':
+                case 'v':
+                default:
+                        /*
+                         * Invalid format-codes imply invalid @args, no way
+                         * to recover meaningfully.
+                         */
+                        assert(0);
+                        break;
+                }
+        }
+
+        return -ENOTRECOVERABLE;
+}
+
+static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
+        CDVarType *type;
+        const char *str;
+        uint64_t u64;
+        uint32_t u32;
+        uint16_t u16;
+        uint8_t u8;
+        size_t i, n;
+        void *p;
+        char c;
+        int r;
+
+        while ((c = *format++)) {
+                r = c_dvar_next_varg(var, c);
+                if (r < 0)
+                        goto error;
+
+                switch (c) {
+                case '[':
+                        /* read array size */
+                        r = c_dvar_read_u32(var, &u32);
+                        if (r < 0)
+                                goto error;
+
+                        /* align to child-alignment */
+                        r = c_dvar_read_data(var, 1 << (var->current->i_type + 1)->alignment, NULL, 0);
+                        if (r < 0)
+                                goto error;
+
+                        /* check space (alignment and size are not counted) */
+                        if (u32 > var->current->n_buffer) {
+                                r = -EBADMSG;
+                                goto error;
+                        }
+
+                        c_dvar_push(var);
+                        var->current->n_buffer = u32;
+                        continue; /* do not advance type iterator */
+
+                case '<':
+                        r = c_dvar_read_u8(var, &u8);
+                        if (r < 0)
+                                goto error;
+
+                        n = u8;
+                        r = c_dvar_read_data(var, 0, (const void **)&str, n);
+                        if (r < 0)
+                                goto error;
+
+                        r = c_dvar_read_u8(var, &u8);
+                        if (r < 0)
+                                goto error;
+
+                        if (u8 || strlen(str) != n || !c_dvar_is_type(str)) {
+                                r = -EBADMSG;
+                                goto error;
+                        }
+
+                        type = p = (CDVarType *)va_arg(args, const CDVarType *);
+                        if (!type) {
+                                r = c_dvar_type_new_from_signature(&type, str, n);
+                                if (!r && type->length != n)
+                                        r = -EBADMSG;
+                        } else if (type->length != n) {
+                                r = -EBADMSG;
+                        } else {
+                                /* verify @type matches @str */
+                                r = 0;
+                                for (i = 0; i < n; ++i) {
+                                        if (type[i].element != str[i]) {
+                                                r = -EBADMSG;
+                                                break;
+                                        }
+                                }
+                        }
+
+                        if (r) {
+                                if (type != p)
+                                        c_dvar_type_free(type);
+
+                                /*
+                                 * We fetched va_arg() of the current format
+                                 * character. Increment @format, so the
+                                 * error-path does the right thing.
+                                 */
+                                ++format;
+                                goto error;
+                        }
+
+                        c_dvar_push(var);
+                        var->current->parent_type = type;
+                        var->current->i_type = type;
+                        var->current->n_type = type->length;
+                        var->current->allocated_parent_type = (type != p);
+                        continue; /* do not advance type iterator */
+
+                case '(':
+                case '{':
+                        /* align to 8 bytes */
+                        r = c_dvar_read_data(var, 3, NULL, 0);
+                        if (r < 0)
+                                goto error;
+
+                        c_dvar_push(var);
+                        --var->current->n_type; /* truncate trailing bracket */
+                        continue; /* do not advance type iterator */
+
+                case ']':
+                        /* trailing padding is not allowed */
+                        if (var->current->n_buffer) {
+                                r = -EBADMSG;
+                                goto error;
+                        }
+
+                        c_dvar_pop(var);
+                        break;
+
+                case '>':
+                case ')':
+                case '}':
+                        c_dvar_pop(var);
+                        break;
+
+                case 'y':
+                        r = c_dvar_read_u8(var, &u8);
+                        if (r < 0)
+                                goto error;
+
+                        p = va_arg(args, uint8_t *);
+                        if (p)
+                                *(uint8_t *)p = u8;
+
+                        break;
+
+                case 'b':
+                        r = c_dvar_read_u32(var, &u32);
+                        if (r < 0)
+                                goto error;
+                        if (u32 != 0 && u32 != 1) {
+                                r = -EBADMSG;
+                                goto error;
+                        }
+
+                        p = va_arg(args, bool *);
+                        if (p)
+                                *(bool *)p = u32;
+
+                        break;
+
+                case 'n':
+                case 'q':
+                        r = c_dvar_read_u16(var, &u16);
+                        if (r < 0)
+                                goto error;
+
+                        p = va_arg(args, uint16_t *);
+                        if (p)
+                                *(uint16_t *)p = u16;
+
+                        break;
+
+                case 'i':
+                case 'h':
+                case 'u':
+                        r = c_dvar_read_u32(var, &u32);
+                        if (r < 0)
+                                goto error;
+
+                        p = va_arg(args, uint32_t *);
+                        if (p)
+                                *(uint32_t *)p = u32;
+
+                        break;
+
+                case 'x':
+                case 't':
+                case 'd':
+                        r = c_dvar_read_u64(var, &u64);
+                        if (r < 0)
+                                goto error;
+
+                        p = va_arg(args, uint64_t *);
+                        if (p)
+                                *(uint64_t *)p = u64;
+
+                        break;
+
+                case 's':
+                case 'o':
+                case 'g':
+                        if (c == 'g') {
+                                r = c_dvar_read_u8(var, &u8);
+                                if (r < 0)
+                                        goto error;
+
+                                u32 = u8;
+                        } else {
+                                r = c_dvar_read_u32(var, &u32);
+                                if (r < 0)
+                                        goto error;
+                        }
+
+                        r = c_dvar_read_data(var, 0, (const void **)&str, u32);
+                        if (r < 0)
+                                goto error;
+
+                        r = c_dvar_read_u8(var, &u8);
+                        if (r < 0)
+                                goto error;
+
+                        if (u8 ||
+                            strlen(str) != u32 ||
+                            (c == 'o' && !c_dvar_is_path(str)) ||
+                            (c == 'g' && !c_dvar_is_signature(str))) {
+                                r = -EBADMSG;
+                                goto error;
+                        }
+
+                        p = va_arg(args, const char **);
+                        if (p)
+                                *(const char **)p = str;
+
+                        break;
+
+                default:
+                        r = -ENOTRECOVERABLE;
+                        goto error;
+                }
+
+                /*
+                 * At this point we handled a terminal type. We must advance
+                 * the type-iterator so we can continue with the next type. In
+                 * case of arrays, this does not happen, though, since there we
+                 * continously write the same type, until explicitly terminated
+                 * by the caller.
+                 */
+                if (var->current->container != 'a') {
+                        var->current->n_type -= var->current->i_type->length;
+                        var->current->i_type += var->current->i_type->length;
+                }
+        }
+
+        return 0;
+
+error:
+        c_dvar_dummy_vread(var, format, args);
+        return r;
+}
+
+/**
+ * c_dvar_begin_read() - XXX
+ */
+_public_ void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *type, const void *data, size_t n_data) {
+        c_dvar_reset(var);
+
+        var->data = (void *)data;
+        var->n_data = n_data;
+        var->ro = true;
+        var->big_endian = big_endian;
+
+        var->current = var->levels;
+        var->current->parent_type = (CDVarType *)type;
+        var->current->i_type = (CDVarType *)type;
+        var->current->n_type = type->length;
+        var->current->container = 0;
+        var->current->allocated_parent_type = false;
+        var->current->i_buffer = 0;
+        var->current->n_buffer = var->n_data;
+}
+
+/**
+ * c_dvar_more() - XXX
+ */
+_public_ bool c_dvar_more(CDVar *var) {
+        return var->ro && var->current && var->current->n_buffer;
+}
+
+/**
+ * c_dvar_vread() - XXX
+ */
+_public_ int c_dvar_vread(CDVar *var, const char *format, va_list args) {
+        if (_unlikely_(var->poison))
+                c_dvar_dummy_vread(var, format, args);
+        else if (_unlikely_(!var->ro || !var->current))
+                var->poison = c_dvar_dummy_vread(var, format, args);
+        else
+                var->poison = c_dvar_try_vread(var, format, args);
+
+        return var->poison;
+}
+
+/**
+ * c_dvar_end_read() - XXX
+ */
+_public_ int c_dvar_end_read(CDVar *var) {
+        if (_unlikely_(var->poison))
+                return var->poison;
+        if (_unlikely_(!var->ro || !var->current || var->current != var->levels || var->current->n_type))
+                return -ENOTRECOVERABLE;
+
+        return 0;
+}

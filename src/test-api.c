@@ -15,6 +15,7 @@
 static void test_api(void) {
         __attribute__((__cleanup__(c_dvar_type_freep))) CDVarType *type = NULL;
         __attribute__((__cleanup__(c_dvar_freep))) CDVar *var = NULL;
+        static const uint32_t u32 = 7;
         static const CDVarType t = {
                 .size = 4,
                 .alignment = 2,
@@ -22,6 +23,7 @@ static void test_api(void) {
                 .length = 1,
                 .basic = 1,
         };
+        uint32_t value;
         size_t n_data;
         void *data;
         int r;
@@ -62,6 +64,19 @@ static void test_api(void) {
         assert(data);
         assert(n_data);
         free(data);
+
+        var = c_dvar_free(var);
+
+        /* reader */
+
+        r = c_dvar_new(&var);
+        assert(!r);
+
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), &t, &u32, sizeof(u32));
+        c_dvar_read(var, "u", &value);
+        r = c_dvar_end_read(var);
+        assert(r >= 0);
+        assert(value == 7);
 
         var = c_dvar_free(var);
 }
