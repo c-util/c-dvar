@@ -15,6 +15,15 @@
 static void test_api(void) {
         __attribute__((__cleanup__(c_dvar_type_freep))) CDVarType *type = NULL;
         __attribute__((__cleanup__(c_dvar_freep))) CDVar *var = NULL;
+        static const CDVarType t = {
+                .size = 4,
+                .alignment = 2,
+                .element = 'u',
+                .length = 1,
+                .basic = 1,
+        };
+        size_t n_data;
+        void *data;
         int r;
 
         /* type handling */
@@ -38,6 +47,21 @@ static void test_api(void) {
         c_dvar_get_data(var, NULL, NULL);
         assert(!c_dvar_get_root_type(var));
         assert(!c_dvar_get_parent_type(var));
+
+        var = c_dvar_free(var);
+
+        /* writer */
+
+        r = c_dvar_new(&var);
+        assert(!r);
+
+        c_dvar_begin_write(var, &t);
+        c_dvar_write(var, "u", 0);
+        r = c_dvar_end_write(var, &data, &n_data);
+        assert(r >= 0);
+        assert(data);
+        assert(n_data);
+        free(data);
 
         var = c_dvar_free(var);
 }

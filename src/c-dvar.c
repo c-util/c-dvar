@@ -116,3 +116,94 @@ _public_ const CDVarType *c_dvar_get_root_type(CDVar *var) {
 _public_ const CDVarType *c_dvar_get_parent_type(CDVar *var) {
         return var->current ? var->current->parent_type : NULL;
 }
+
+/*
+ * Internal helper that verifies the next varg-type to read is @c. This is
+ * called as iterator on format-strings for c-dvar variant bulk readers and
+ * writers. That is, @c is the next character in the format string. This
+ * function then verifies it matches what is expected. Otherwise, an error is
+ * returned.
+ */
+int c_dvar_next_varg(CDVar *var, char c) {
+        char real_c;
+
+        /*
+         * Our varg format string language extends the type strings to become a
+         * full streaming language. To verify they match the elements in the
+         * actual type, we need the real type character to match against. We
+         * store it in @real_c, based on what is given as @c.
+         */
+        switch (c) {
+        case '[':
+        case ']':
+                /* array stream */
+                real_c = 'a';
+                break;
+        case '<':
+        case '>':
+                /* variant stream */
+                real_c = 'v';
+                break;
+        case ')':
+                real_c = '(';
+                break;
+        case '}':
+                real_c = '{';
+                break;
+        default:
+                /* everything else matches exactly */
+                real_c = c;
+                break;
+        }
+
+        switch (c) {
+        case ']':
+        case '>':
+        case ')':
+        case '}':
+                /*
+                 * A container can only be exited if fully parsed. This means,
+                 * the type iterator must be at the end and the container type
+                 * must match.
+                 * Note that for arrays the type-iterator is never advanced, so
+                 * it is the job of the caller to verify additional constraints
+                 * if required.
+                 */
+                if ((real_c != 'a' && var->current->n_type) ||
+                    var->current->container != real_c)
+                        return -ENOTRECOVERABLE;
+
+                break;
+
+        case 'a':
+        case 'v':
+                /*
+                 * Arrays and variants must be read one-by-one, using the "[]"
+                 * and "<>" operators. There is no atomic reader for an entire
+                 * array or variant right now.
+                 */
+                return -ENOTRECOVERABLE;
+
+        case '[':
+        case '<':
+        case '(':
+        case '{':
+                /*
+                 * Entering a type must not exceed the maximum depth. The type
+                 * parser verifies this already, but this can be circumvented
+                 * by using nested variants or hand-crafted types.
+                 */
+                if (_unlikely_(var->current >= var->levels + C_DVAR_TYPE_DEPTH_MAX - 1))
+                        return -ENOTRECOVERABLE;
+
+                /* fallthrough */
+        default:
+                if (_unlikely_(!var->current->n_type ||
+                               var->current->i_type->element != real_c))
+                        return -ENOTRECOVERABLE;
+
+                break;
+        }
+
+        return 0;
+}

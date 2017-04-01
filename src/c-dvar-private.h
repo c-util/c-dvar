@@ -30,7 +30,12 @@ struct CDVarLevel {
         uint8_t container : 7;
         uint8_t allocated_parent_type : 1;
         size_t i_buffer;
-        size_t n_buffer;
+        union {
+                /* reader */
+                size_t n_buffer;
+                /* writer */
+                size_t index;
+        };
 };
 
 struct CDVar {
@@ -44,3 +49,36 @@ struct CDVar {
         CDVarLevel *current;
         CDVarLevel levels[C_DVAR_TYPE_DEPTH_MAX + 1];
 };
+
+int c_dvar_next_varg(CDVar *var, char c);
+
+static inline void c_dvar_push(CDVar *var) {
+        ++var->current;
+
+        var->current->parent_type = (var->current - 1)->parent_type;
+        var->current->i_type = (var->current - 1)->i_type + 1;
+        var->current->n_type = (var->current - 1)->n_type - 1;
+        var->current->container = (var->current - 1)->i_type->element;
+        var->current->allocated_parent_type = false;
+        var->current->i_buffer = (var->current - 1)->i_buffer;
+
+        if (var->ro)
+                var->current->n_buffer = (var->current - 1)->n_buffer;
+        else
+                var->current->index = 0;
+}
+
+static inline void c_dvar_pop(CDVar *var) {
+        size_t n;
+
+        if (var->current->allocated_parent_type)
+                free(var->current->parent_type);
+
+        --var->current;
+
+        n = (var->current + 1)->i_buffer - var->current->i_buffer;
+        var->current->i_buffer += n;
+
+        if (var->ro)
+                var->current->n_buffer -= n;
+}

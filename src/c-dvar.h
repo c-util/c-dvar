@@ -76,6 +76,10 @@ void c_dvar_get_data(CDVar *var, void **datap, size_t *n_datap);
 const CDVarType *c_dvar_get_root_type(CDVar *var);
 const CDVarType *c_dvar_get_parent_type(CDVar *var);
 
+void c_dvar_begin_write(CDVar *var, const CDVarType *type);
+int c_dvar_vwrite(CDVar *var, const char *format, va_list args);
+int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap);
+
 /**
  * c_dvar_type_freep() - XXX
  */
@@ -90,6 +94,19 @@ static inline void c_dvar_type_freep(CDVarType **type) {
 static inline void c_dvar_freep(CDVar **var) {
         if (*var)
                 c_dvar_free(*var);
+}
+
+/**
+ * c_dvar_write() - XXX
+ */
+static inline int c_dvar_write(CDVar *var, const char *format, ...) {
+        va_list args;
+        int r;
+
+        va_start(args, format);
+        r = c_dvar_vwrite(var, format, args);
+        va_end(args);
+        return r;
 }
 
 #ifdef __cplusplus
