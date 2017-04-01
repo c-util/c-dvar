@@ -14,9 +14,33 @@
 #include <stdlib.h>
 #include "c-dvar.h"
 
+typedef struct CDVarLevel CDVarLevel;
+
 #define _cleanup_(_x) __attribute__((__cleanup__(_x)))
 #define _likely_(_x) (__builtin_expect(!!(_x), 1))
 #define _public_ __attribute__((__visibility__("default")))
 #define _unlikely_(_x) (__builtin_expect(!!(_x), 0))
 
 #define ALIGN_TO(_val, _alignment) ((_val + (_alignment) - 1) & ~((_alignment) - 1))
+
+struct CDVarLevel {
+        CDVarType *parent_type;
+        CDVarType *i_type;
+        uint8_t n_type;
+        uint8_t container : 7;
+        uint8_t allocated_parent_type : 1;
+        size_t i_buffer;
+        size_t n_buffer;
+};
+
+struct CDVar {
+        uint8_t *data;
+        size_t n_data;
+
+        int poison;
+        bool ro : 1;
+        bool big_endian : 1;
+
+        CDVarLevel *current;
+        CDVarLevel levels[C_DVAR_TYPE_DEPTH_MAX + 1];
+};

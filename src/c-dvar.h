@@ -24,6 +24,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stdlib.h>
 
+typedef struct CDVar CDVar;
 typedef struct CDVarType CDVarType;
 
 /**
@@ -63,12 +64,32 @@ CDVarType *c_dvar_type_free(CDVarType *type);
 
 int c_dvar_type_compare_string(const CDVarType *subject, const char *object, size_t n_object);
 
+/* variant management */
+
+int c_dvar_new(CDVar **varp);
+CDVar *c_dvar_free(CDVar *var);
+void c_dvar_reset(CDVar *var);
+
+bool c_dvar_is_big_endian(CDVar *var);
+int c_dvar_get_poison(CDVar *var);
+void c_dvar_get_data(CDVar *var, void **datap, size_t *n_datap);
+const CDVarType *c_dvar_get_root_type(CDVar *var);
+const CDVarType *c_dvar_get_parent_type(CDVar *var);
+
 /**
  * c_dvar_type_freep() - XXX
  */
 static inline void c_dvar_type_freep(CDVarType **type) {
         if (*type)
                 c_dvar_type_free(*type);
+}
+
+/**
+ * c_dvar_freep() - XXX
+ */
+static inline void c_dvar_freep(CDVar **var) {
+        if (*var)
+                c_dvar_free(*var);
 }
 
 #ifdef __cplusplus
