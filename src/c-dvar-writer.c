@@ -97,8 +97,6 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                                 return r;
 
                         c_dvar_push(var);
-                        ++var->current->i_type;
-                        --var->current->n_type;
                         continue; /* do not advance type iterator */
 
                 case '<':
