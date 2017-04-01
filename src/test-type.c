@@ -254,7 +254,7 @@ static void test_valid_types(void) {
          */
 
         for (i = 0; i < sizeof(signatures) / sizeof(*signatures); ++i) {
-                r = c_dvar_type_new_from_signature(&type, signatures[i], strlen(signatures[i]));
+                r = c_dvar_type_new_from_string(&type, signatures[i]);
                 assert(!r);
                 c_dvar_type_free(type);
         }
@@ -298,7 +298,7 @@ static void test_invalid_types(void) {
          */
 
         for (i = 0; i < sizeof(signatures) / sizeof(*signatures); ++i) {
-                r = c_dvar_type_new_from_signature(&type, signatures[i], strlen(signatures[i]));
+                r = c_dvar_type_new_from_string(&type, signatures[i]);
                 assert(r != 0);
                 assert(r > 0);
         }

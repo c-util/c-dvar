@@ -33,6 +33,9 @@ static void test_api(void) {
         r = c_dvar_type_new_from_signature(&type, NULL, 0);
         assert(r != 0);
 
+        r = c_dvar_type_new_from_string(&type, "");
+        assert(r != 0);
+
         r = c_dvar_type_compare_string(NULL, NULL, 0);
         assert(!r);
 

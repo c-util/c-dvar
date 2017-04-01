@@ -23,6 +23,7 @@ extern "C" {
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct CDVar CDVar;
 typedef struct CDVarType CDVarType;
@@ -125,6 +126,38 @@ int c_dvar_end_read(CDVar *var);
 void c_dvar_begin_write(CDVar *var, const CDVarType *type);
 int c_dvar_vwrite(CDVar *var, const char *format, va_list args);
 int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap);
+
+/**
+ * c_dvar_type_new_from_string() - allocate new type information from string
+ * @typep:              output argument for newly allocated object
+ * @str:                string representation of the type
+ *
+ * This is similar to c_dvar_type_new_from_signature(), but it fails if @str is
+ * not a single complete type. In case @str contains more than a single
+ * complete type, C_DVAR_E_INVALID_TYPE is returned.
+ *
+ * Return: 0 on success, negative error code on fatal failure, positive error
+ *         code on parser errors.
+ */
+static inline int c_dvar_type_new_from_string(CDVarType **typep, const char *str) {
+        CDVarType *type;
+        size_t n;
+        int r;
+
+        n = strlen(str);
+        r = c_dvar_type_new_from_signature(&type, str, n);
+        if (r)
+                return r;
+
+        if (n != type->length) {
+                c_dvar_type_free(type);
+                return C_DVAR_E_INVALID_TYPE;
+        }
+
+        *typep = type;
+        return 0;
+
+}
 
 /**
  * c_dvar_type_freep() - free type information
