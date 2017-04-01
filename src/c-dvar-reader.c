@@ -37,7 +37,7 @@ static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_
         align = ALIGN_TO(var->current->i_buffer, 1 << alignment) - var->current->i_buffer;
 
         if (_unlikely_(var->current->n_buffer < align + n_data))
-                return -EBADMSG;
+                return C_DVAR_E_OUT_OF_BOUNDS;
 
         /*
          * Verify alignment bytes are 0. Needed for compatibility with
@@ -45,7 +45,7 @@ static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_
          */
         for (i = 0; i < align; ++i)
                 if (_unlikely_(var->data[var->current->i_buffer + i]))
-                        return -EBADMSG;
+                        return C_DVAR_E_CORRUPT_DATA;
 
         if (datap)
                 *datap = var->data + var->current->i_buffer + align;
@@ -214,24 +214,24 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
 
         while ((c = *format++)) {
                 r = c_dvar_next_varg(var, c);
-                if (r < 0)
+                if (r)
                         goto error;
 
                 switch (c) {
                 case '[':
                         /* read array size */
                         r = c_dvar_read_u32(var, &u32);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         /* align to child-alignment */
                         r = c_dvar_read_data(var, 1 << (var->current->i_type + 1)->alignment, NULL, 0);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         /* check space (alignment and size are not counted) */
                         if (u32 > var->current->n_buffer) {
-                                r = -EBADMSG;
+                                r = C_DVAR_E_OUT_OF_BOUNDS;
                                 goto error;
                         }
 
@@ -241,36 +241,36 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
 
                 case '<':
                         r = c_dvar_read_u8(var, &u8);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         n = u8;
                         r = c_dvar_read_data(var, 0, (const void **)&str, n);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         r = c_dvar_read_u8(var, &u8);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         if (u8 || strlen(str) != n || !c_dvar_is_type(str)) {
-                                r = -EBADMSG;
+                                r = C_DVAR_E_CORRUPT_DATA;
                                 goto error;
                         }
 
                         type = p = (CDVarType *)va_arg(args, const CDVarType *);
                         if (!type) {
                                 r = c_dvar_type_new_from_signature(&type, str, n);
-                                if (!r && type->length != n)
-                                        r = -EBADMSG;
+                                if (r > 0 || (!r && type->length != n))
+                                        r = C_DVAR_E_CORRUPT_DATA;
                         } else if (type->length != n) {
-                                r = -EBADMSG;
+                                r = C_DVAR_E_TYPE_MISMATCH;
                         } else {
                                 /* verify @type matches @str */
                                 r = 0;
                                 for (i = 0; i < n; ++i) {
                                         if (type[i].element != str[i]) {
-                                                r = -EBADMSG;
+                                                r = C_DVAR_E_TYPE_MISMATCH;
                                                 break;
                                         }
                                 }
@@ -300,7 +300,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                 case '{':
                         /* align to 8 bytes */
                         r = c_dvar_read_data(var, 3, NULL, 0);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         c_dvar_push(var);
@@ -310,7 +310,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                 case ']':
                         /* trailing padding is not allowed */
                         if (var->current->n_buffer) {
-                                r = -EBADMSG;
+                                r = C_DVAR_E_CORRUPT_DATA;
                                 goto error;
                         }
 
@@ -325,7 +325,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
 
                 case 'y':
                         r = c_dvar_read_u8(var, &u8);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         p = va_arg(args, uint8_t *);
@@ -336,10 +336,10 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
 
                 case 'b':
                         r = c_dvar_read_u32(var, &u32);
-                        if (r < 0)
+                        if (r)
                                 goto error;
                         if (u32 != 0 && u32 != 1) {
-                                r = -EBADMSG;
+                                r = C_DVAR_E_CORRUPT_DATA;
                                 goto error;
                         }
 
@@ -352,7 +352,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                 case 'n':
                 case 'q':
                         r = c_dvar_read_u16(var, &u16);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         p = va_arg(args, uint16_t *);
@@ -365,7 +365,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                 case 'h':
                 case 'u':
                         r = c_dvar_read_u32(var, &u32);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         p = va_arg(args, uint32_t *);
@@ -378,7 +378,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                 case 't':
                 case 'd':
                         r = c_dvar_read_u64(var, &u64);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         p = va_arg(args, uint64_t *);
@@ -392,29 +392,29 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                 case 'g':
                         if (c == 'g') {
                                 r = c_dvar_read_u8(var, &u8);
-                                if (r < 0)
+                                if (r)
                                         goto error;
 
                                 u32 = u8;
                         } else {
                                 r = c_dvar_read_u32(var, &u32);
-                                if (r < 0)
+                                if (r)
                                         goto error;
                         }
 
                         r = c_dvar_read_data(var, 0, (const void **)&str, u32);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         r = c_dvar_read_u8(var, &u8);
-                        if (r < 0)
+                        if (r)
                                 goto error;
 
                         if (u8 ||
                             strlen(str) != u32 ||
                             (c == 'o' && !c_dvar_is_path(str)) ||
                             (c == 'g' && !c_dvar_is_signature(str))) {
-                                r = -EBADMSG;
+                                r = C_DVAR_E_CORRUPT_DATA;
                                 goto error;
                         }
 

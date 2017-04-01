@@ -64,6 +64,11 @@ enum {
         C_DVAR_E_OVERLONG_TYPE,
         C_DVAR_E_DEPTH_OVERFLOW,
         C_DVAR_E_INVALID_TYPE,
+
+        /* variant parser */
+        C_DVAR_E_CORRUPT_DATA,
+        C_DVAR_E_OUT_OF_BOUNDS,
+        C_DVAR_E_TYPE_MISMATCH,
 };
 
 /**

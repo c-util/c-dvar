@@ -79,21 +79,21 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
 
         while ((c = *format++)) {
                 r = c_dvar_next_varg(var, c);
-                if (r < 0)
+                if (r)
                         return r;
 
                 switch (c) {
                 case '[':
                         /* write and remember placeholder for array size */
                         r = c_dvar_write_u32(var, 0);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         var->current->index = var->current->i_buffer - 4;
 
                         /* all arrays contain alignment to enclosed type */
                         r = c_dvar_write_data(var, 1 << (var->current->i_type + 1)->alignment, NULL, 0);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         c_dvar_push(var);
@@ -105,11 +105,11 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                         type = va_arg(args, const CDVarType *);
 
                         r = c_dvar_write_u8(var, type->length);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         r = c_dvar_write_data(var, 0, NULL, type->length + 1);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         for (n = 0; n < type->length; ++n)
@@ -126,7 +126,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                 case '{':
                         /* align to 64-bit */
                         r = c_dvar_write_data(var, 3, NULL, 0);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         c_dvar_push(var);
@@ -150,7 +150,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                 case 'y':
                         u8 = va_arg(args, int);
                         r = c_dvar_write_u8(var, u8);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         break;
@@ -158,7 +158,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                 case 'b':
                         u32 = va_arg(args, int);
                         r = c_dvar_write_u32(var, !!u32);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         break;
@@ -167,7 +167,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                 case 'q':
                         u16 = va_arg(args, int);
                         r = c_dvar_write_u16(var, u16);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         break;
@@ -177,7 +177,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                 case 'u':
                         u32 = va_arg(args, uint32_t);
                         r = c_dvar_write_u32(var, u32);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         break;
@@ -186,7 +186,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                 case 't':
                         u64 = va_arg(args, uint64_t);
                         r = c_dvar_write_u64(var, u64);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         break;
@@ -198,7 +198,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                                       "Unsupported size of 'double'");
 
                         r = c_dvar_write_data(var, 3, &fp, sizeof(fp));
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         break;
@@ -211,11 +211,11 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                                 return -ENOTRECOVERABLE;
 
                         r = c_dvar_write_u32(var, n);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         r = c_dvar_write_data(var, 0, str, n + 1);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         break;
@@ -227,11 +227,11 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                                 return -ENOTRECOVERABLE;
 
                         r = c_dvar_write_u8(var, n);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         r = c_dvar_write_data(var, 0, str, n + 1);
-                        if (r < 0)
+                        if (r)
                                 return r;
 
                         break;
