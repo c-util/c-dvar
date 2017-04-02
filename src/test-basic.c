@@ -86,6 +86,15 @@ static void test_basic_serialization(void) {
         r = c_dvar_end_read(var);
         assert(!r);
 
+        /* skip example data */
+
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, data, n_data);
+
+        c_dvar_skip(var, "(yu[{sv}{s<t>}])", type_t);
+
+        r = c_dvar_end_read(var);
+        assert(!r);
+
         free(data);
 }
 

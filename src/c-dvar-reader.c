@@ -449,6 +449,70 @@ error:
         return r;
 }
 
+static int c_dvar_try_vskip(CDVar *var, const char *format, va_list args) {
+        size_t depth = 0;
+        void *p;
+        char c;
+        int r;
+
+        /*
+         * This simply iterates over the format-string @format, but passes NULL
+         * to the reader so its value is skipped (but still validated).
+         * Additionally, it supports 'v' in the format-string, in which case it
+         * skips an entire variant. This is done by simply skipping whatever is
+         * found in the variant (and, again, validating it). This is done
+         * recursively, since the D-Bus serialization does not support random
+         * access.
+         */
+
+        while (*format) {
+                do {
+                        if (!depth) {
+                                c = *format++;
+                        } else if (var->current->n_type) {
+                                c = var->current->i_type->element;
+                                if (c == 'a')
+                                        c = '[';
+                        } else {
+                                switch (var->current->container) {
+                                case 'a':
+                                        c = ']';
+                                        break;
+                                case 'v':
+                                        --depth;
+                                        c = '>';
+                                        break;
+                                case '(':
+                                        c = ')';
+                                        break;
+                                case '{':
+                                        c = '}';
+                                        break;
+                                default:
+                                        return -ENOTRECOVERABLE;
+                                }
+                        }
+
+                        p = NULL;
+                        switch (c) {
+                        case 'v':
+                                c = '<';
+                                ++depth;
+                                break;
+                        case '<':
+                                p = (void *)va_arg(args, const CDVarType *);
+                                break;
+                        }
+
+                        r = c_dvar_read(var, (char [2]){ c, 0 }, p);
+                        if (r)
+                                return r;
+                } while (depth);
+        }
+
+        return 0;
+}
+
 /**
  * c_dvar_begin_read() - XXX
  */
@@ -489,6 +553,18 @@ _public_ int c_dvar_vread(CDVar *var, const char *format, va_list args) {
                 var->poison = c_dvar_try_vread(var, format, args);
 
         return var->poison;
+}
+
+/**
+ * c_dvar_vskip() - XXX
+ */
+_public_ int c_dvar_vskip(CDVar *var, const char *format, va_list args) {
+        if (_unlikely_(var->poison))
+                return var->poison;
+        if (_unlikely_(!var->ro || !var->current))
+                return -ENOTRECOVERABLE;
+
+        return var->poison = c_dvar_try_vskip(var, format, args);
 }
 
 /**

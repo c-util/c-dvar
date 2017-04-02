@@ -17,6 +17,7 @@ global:
         c_dvar_begin_read;
         c_dvar_more;
         c_dvar_vread;
+        c_dvar_vskip;
         c_dvar_end_read;
 
         c_dvar_begin_write;

@@ -63,6 +63,7 @@ static void test_api(void) {
         c_dvar_begin_read(var, c_dvar_is_big_endian(var), &t, &u32, sizeof(u32));
         assert(c_dvar_more(var));
         c_dvar_read(var, "u", &value);
+        c_dvar_skip(var, "");
         r = c_dvar_end_read(var);
         assert(r >= 0);
         assert(value == 7);
