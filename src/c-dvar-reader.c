@@ -225,7 +225,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                                 goto error;
 
                         /* align to child-alignment */
-                        r = c_dvar_read_data(var, 1 << (var->current->i_type + 1)->alignment, NULL, 0);
+                        r = c_dvar_read_data(var, (var->current->i_type + 1)->alignment, NULL, 0);
                         if (r)
                                 goto error;
 

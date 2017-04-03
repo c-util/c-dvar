@@ -92,7 +92,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                         var->current->index = var->current->i_buffer - 4;
 
                         /* all arrays contain alignment to enclosed type */
-                        r = c_dvar_write_data(var, 1 << (var->current->i_type + 1)->alignment, NULL, 0);
+                        r = c_dvar_write_data(var, (var->current->i_type + 1)->alignment, NULL, 0);
                         if (r)
                                 return r;
 
