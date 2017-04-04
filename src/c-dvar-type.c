@@ -61,6 +61,21 @@ static const CDVarType c_dvar_type_builtins[256] = {
         ['v'] = { C_DVAR_EXPAND(C_DVAR_TYPE_v) },
 };
 
+const CDVarType * const c_dvar_type_y = &c_dvar_type_builtins['y'];
+const CDVarType * const c_dvar_type_b = &c_dvar_type_builtins['b'];
+const CDVarType * const c_dvar_type_n = &c_dvar_type_builtins['n'];
+const CDVarType * const c_dvar_type_q = &c_dvar_type_builtins['q'];
+const CDVarType * const c_dvar_type_i = &c_dvar_type_builtins['i'];
+const CDVarType * const c_dvar_type_u = &c_dvar_type_builtins['u'];
+const CDVarType * const c_dvar_type_x = &c_dvar_type_builtins['x'];
+const CDVarType * const c_dvar_type_t = &c_dvar_type_builtins['t'];
+const CDVarType * const c_dvar_type_h = &c_dvar_type_builtins['h'];
+const CDVarType * const c_dvar_type_d = &c_dvar_type_builtins['d'];
+const CDVarType * const c_dvar_type_s = &c_dvar_type_builtins['s'];
+const CDVarType * const c_dvar_type_o = &c_dvar_type_builtins['o'];
+const CDVarType * const c_dvar_type_g = &c_dvar_type_builtins['g'];
+const CDVarType * const c_dvar_type_v = &c_dvar_type_builtins['v'];
+
 /**
  * c_dvar_type_new_from_signature() - parse D-Bus type from type signature
  * @typep:              output argument to store allocated type array

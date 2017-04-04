@@ -1,5 +1,20 @@
 LIBCDVAR_1 {
 global:
+        c_dvar_type_y;
+        c_dvar_type_b;
+        c_dvar_type_n;
+        c_dvar_type_q;
+        c_dvar_type_i;
+        c_dvar_type_u;
+        c_dvar_type_x;
+        c_dvar_type_t;
+        c_dvar_type_h;
+        c_dvar_type_d;
+        c_dvar_type_s;
+        c_dvar_type_o;
+        c_dvar_type_g;
+        c_dvar_type_v;
+
         c_dvar_type_new_from_signature;
         c_dvar_type_free;
         c_dvar_type_compare_string;

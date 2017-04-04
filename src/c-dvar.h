@@ -98,6 +98,23 @@ struct CDVarType {
         uint32_t basic : 1;
 };
 
+/* builtin */
+
+extern const CDVarType * const c_dvar_type_y;
+extern const CDVarType * const c_dvar_type_b;
+extern const CDVarType * const c_dvar_type_n;
+extern const CDVarType * const c_dvar_type_q;
+extern const CDVarType * const c_dvar_type_i;
+extern const CDVarType * const c_dvar_type_u;
+extern const CDVarType * const c_dvar_type_x;
+extern const CDVarType * const c_dvar_type_t;
+extern const CDVarType * const c_dvar_type_h;
+extern const CDVarType * const c_dvar_type_d;
+extern const CDVarType * const c_dvar_type_s;
+extern const CDVarType * const c_dvar_type_o;
+extern const CDVarType * const c_dvar_type_g;
+extern const CDVarType * const c_dvar_type_v;
+
 /* type handling */
 
 int c_dvar_type_new_from_signature(CDVarType **typep, const char *signature, size_t n_signature);
