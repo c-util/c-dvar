@@ -517,6 +517,25 @@ static int c_dvar_try_vskip(CDVar *var, const char *format, va_list args) {
  * c_dvar_begin_read() - XXX
  */
 _public_ void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *type, const void *data, size_t n_data) {
+        /*
+         * D-Bus types are generally composable, unlike its default
+         * serialization, which is position dependent. Its required padding
+         * changes depending on its initial alignment. Hence, you must pass in
+         * 64-bit aligned data, otherwise you will not get a canonical
+         * representation.
+         *
+         * There are exceptions, where you could successfully do composition.
+         * However, almost all those exceptions are statically sized types, so
+         * you're better off using a hard-coded structure type, anyway. You
+         * need deep understanding of the serialization to realize the
+         * composition would work, so there is no point in using a CDVar object
+         * at all.
+         *
+         * XXX: We could support a `shifted' reader, that supports parsing
+         *      sub-variants. So far we didn't see a need for it, though.
+         */
+        assert(data == (void *)ALIGN_TO((unsigned long)data, 8));
+
         c_dvar_reset(var);
 
         var->data = (void *)data;
