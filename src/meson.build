@@ -50,7 +50,7 @@ test('Basic API Behavior', test_basic)
 
 if libdbus_typenum_dep.found()
         test_enumerated = executable('test-enumerated', ['test-enumerated.c'], dependencies: [ libcdvar_dep, libdbus_typenum_dep ])
-        test('Type / Data Verification with Enumerated Types', test_enumerated)
+        test('Type and Data Verification with Enumerated Types', test_enumerated)
 endif
 
 test_type = executable('test-type', ['test-type.c'], dependencies: libcdvar_dep)
