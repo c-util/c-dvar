@@ -29,6 +29,23 @@ static void test_api(void) {
         void *data;
         int r;
 
+        /* builtin */
+
+        assert(c_dvar_type_y);
+        assert(c_dvar_type_b);
+        assert(c_dvar_type_n);
+        assert(c_dvar_type_q);
+        assert(c_dvar_type_i);
+        assert(c_dvar_type_u);
+        assert(c_dvar_type_x);
+        assert(c_dvar_type_t);
+        assert(c_dvar_type_h);
+        assert(c_dvar_type_d);
+        assert(c_dvar_type_s);
+        assert(c_dvar_type_o);
+        assert(c_dvar_type_g);
+        assert(c_dvar_type_v);
+
         /* type handling */
 
         r = c_dvar_type_new_from_signature(&type, NULL, 0);
