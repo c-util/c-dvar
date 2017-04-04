@@ -7,6 +7,7 @@
 
 #include <assert.h>
 #include <endian.h>
+#include <stdalign.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +16,7 @@
 static void test_api(void) {
         __attribute__((__cleanup__(c_dvar_type_freep))) CDVarType *type = NULL;
         __attribute__((__cleanup__(c_dvar_freep))) CDVar *var = NULL;
-        static const uint32_t u32 = 7;
+        static const alignas(8) uint32_t u32 = 7;
         static const CDVarType t = {
                 .size = 4,
                 .alignment = 2,
