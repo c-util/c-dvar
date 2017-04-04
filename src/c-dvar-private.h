@@ -50,6 +50,7 @@ struct CDVar {
         CDVarLevel levels[C_DVAR_TYPE_DEPTH_MAX + 1];
 };
 
+void c_dvar_rewind(CDVar *var);
 int c_dvar_next_varg(CDVar *var, char c);
 void c_dvar_push(CDVar *var);
 void c_dvar_pop(CDVar *var);

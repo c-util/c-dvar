@@ -59,14 +59,8 @@ _public_ CDVar *c_dvar_free(CDVar *var) {
  * reset to initial values.
  */
 _public_ void c_dvar_reset(CDVar *var) {
-        if (var->current) {
-                for ( ; var->current > var->levels; --var->current)
-                        if (var->current->allocated_parent_type)
-                                free(var->current->parent_type);
-
-                /* root-level type is always caller-owned */
-                assert(!var->current->allocated_parent_type);
-        }
+        if (var->current)
+                c_dvar_rewind(var);
 
         if (!var->ro)
                 free(var->data);
@@ -115,6 +109,15 @@ _public_ const CDVarType *c_dvar_get_root_type(CDVar *var) {
  */
 _public_ const CDVarType *c_dvar_get_parent_type(CDVar *var) {
         return var->current ? var->current->parent_type : NULL;
+}
+
+void c_dvar_rewind(CDVar *var) {
+        for ( ; var->current > var->levels; --var->current)
+                if (var->current->allocated_parent_type)
+                        free(var->current->parent_type);
+
+        /* root-level type is always caller-owned */
+        assert(!var->current->allocated_parent_type);
 }
 
 /*

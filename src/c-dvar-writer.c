@@ -274,10 +274,11 @@ _public_ void c_dvar_begin_write(CDVar *var, const CDVarType *type) {
  * c_dvar_vwrite() - XXX
  */
 _public_ int c_dvar_vwrite(CDVar *var, const char *format, va_list args) {
+        assert(!var->ro);
+        assert(var->current);
+
         if (_unlikely_(var->poison))
                 return var->poison;
-        if (_unlikely_(var->ro || !var->current))
-                return -ENOTRECOVERABLE;
 
         return var->poison = c_dvar_try_vwrite(var, format, args);
 }
@@ -286,14 +287,31 @@ _public_ int c_dvar_vwrite(CDVar *var, const char *format, va_list args) {
  * c_dvar_end_write() - XXX
  */
 _public_ int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap) {
-        if (_unlikely_(var->poison))
-                return var->poison;
-        if (_unlikely_(var->ro || !var->current || var->current != var->levels || var->current->n_type))
-                return -ENOTRECOVERABLE;
+        int r;
 
-        *datap = var->data;
-        *n_datap = var->current->i_buffer;
+        assert(!var->ro);
+        assert(var->current);
+
+        if (_unlikely_(var->poison)) {
+                free(var->data);
+                r = var->poison;
+        } else if (_unlikely_(var->current != var->levels || var->current->n_type)) {
+                free(var->data);
+                r = C_DVAR_E_CORRUPT_DATA;
+        } else {
+                *datap = var->data;
+                *n_datap = var->current->i_buffer;
+                r = 0;
+        }
+
         var->data = NULL;
         var->n_data = 0;
-        return 0;
+
+        c_dvar_rewind(var);
+        var->current->i_type = var->current->parent_type;
+        var->current->n_type = var->current->parent_type->length;
+        var->current->i_buffer = 0;
+        var->current->index = 0;
+
+        return r;
 }

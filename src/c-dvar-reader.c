@@ -564,10 +564,11 @@ _public_ bool c_dvar_more(CDVar *var) {
  * c_dvar_vread() - XXX
  */
 _public_ int c_dvar_vread(CDVar *var, const char *format, va_list args) {
+        assert(var->ro);
+        assert(var->current);
+
         if (_unlikely_(var->poison))
                 c_dvar_dummy_vread(var, format, args);
-        else if (_unlikely_(!var->ro || !var->current))
-                var->poison = c_dvar_dummy_vread(var, format, args);
         else
                 var->poison = c_dvar_try_vread(var, format, args);
 
@@ -578,10 +579,11 @@ _public_ int c_dvar_vread(CDVar *var, const char *format, va_list args) {
  * c_dvar_vskip() - XXX
  */
 _public_ int c_dvar_vskip(CDVar *var, const char *format, va_list args) {
+        assert(var->ro);
+        assert(var->current);
+
         if (_unlikely_(var->poison))
                 return var->poison;
-        if (_unlikely_(!var->ro || !var->current))
-                return -ENOTRECOVERABLE;
 
         return var->poison = c_dvar_try_vskip(var, format, args);
 }
@@ -590,10 +592,25 @@ _public_ int c_dvar_vskip(CDVar *var, const char *format, va_list args) {
  * c_dvar_end_read() - XXX
  */
 _public_ int c_dvar_end_read(CDVar *var) {
-        if (_unlikely_(var->poison))
-                return var->poison;
-        if (_unlikely_(!var->ro || !var->current || var->current != var->levels || var->current->n_type))
-                return -ENOTRECOVERABLE;
+        int r;
 
-        return 0;
+        assert(var->ro);
+        assert(var->current);
+
+        if (_unlikely_(var->poison))
+                r = var->poison;
+        else if (_unlikely_(var->current != var->levels || var->current->n_type))
+                r = -ENOTRECOVERABLE;
+        else if (_unlikely_(var->current->n_buffer))
+                r = C_DVAR_E_CORRUPT_DATA;
+        else
+                r = 0;
+
+        c_dvar_rewind(var);
+        var->current->i_type = var->current->parent_type;
+        var->current->n_type = var->current->parent_type->length;
+        var->current->i_buffer = 0;
+        var->current->n_buffer = var->n_data;
+
+        return r;
 }
