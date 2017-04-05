@@ -369,6 +369,52 @@ extern "C" {
                         _type_l)        \
         )
 
+/**
+ * C_DVAR_T_TUPLE8(): XXX
+ */
+#define C_DVAR_T_TUPLE8(_type1, _type2, _type3, _type4, _type5, _type6, _type7, _type_l) \
+        C_DVAR_T_TUPLE(                 \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                        _type1,         \
+                        _type2),        \
+                        _type3),        \
+                        _type4),        \
+                        _type5),        \
+                        _type6),        \
+                        _type7),        \
+                        _type_l)        \
+        )
+
+/**
+ * C_DVAR_T_TUPLE9(): XXX
+ */
+#define C_DVAR_T_TUPLE9(_type1, _type2, _type3, _type4, _type5, _type6, _type7, _type8, _type_l) \
+        C_DVAR_T_TUPLE(                 \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                        _type1,         \
+                        _type2),        \
+                        _type3),        \
+                        _type4),        \
+                        _type5),        \
+                        _type6),        \
+                        _type7),        \
+                        _type8),        \
+                        _type_l)        \
+        )
+
 #ifdef __cplusplus
 }
 #endif
