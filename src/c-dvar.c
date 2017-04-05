@@ -216,7 +216,7 @@ void c_dvar_push(CDVar *var) {
 
         var->current->parent_type = (var->current - 1)->parent_type;
         var->current->i_type = (var->current - 1)->i_type + 1;
-        var->current->n_type = (var->current - 1)->n_type - 1;
+        var->current->n_type = (var->current - 1)->i_type->length - 1;
         var->current->container = (var->current - 1)->i_type->element;
         var->current->allocated_parent_type = false;
         var->current->i_buffer = (var->current - 1)->i_buffer;
