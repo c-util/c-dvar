@@ -11,6 +11,7 @@
 #include <string.h>
 #include "c-dvar.h"
 #include "c-dvar-private.h"
+#include "c-dvar-type.h"
 
 static void test_basic_serialization(void) {
         _cleanup_(c_dvar_type_freep) CDVarType *type = NULL;
@@ -92,7 +93,58 @@ static void test_basic_serialization(void) {
         free(data);
 }
 
+static void test_dbus_message(void) {
+        static const CDVarType type[] = {
+                C_DVAR_T_INIT(
+                        /* (yyyyuua(yv)(st)) */
+                        C_DVAR_T_TUPLE8(
+                                C_DVAR_T_y,
+                                C_DVAR_T_y,
+                                C_DVAR_T_y,
+                                C_DVAR_T_y,
+                                C_DVAR_T_u,
+                                C_DVAR_T_u,
+                                C_DVAR_T_ARRAY(
+                                        C_DVAR_T_TUPLE2(
+                                                C_DVAR_T_y,
+                                                C_DVAR_T_v
+                                        )
+                                ),
+                                C_DVAR_T_TUPLE2(
+                                        C_DVAR_T_s,
+                                        C_DVAR_T_t
+                                )
+                        )
+                )
+        };
+        _cleanup_(c_dvar_freep) CDVar *var = NULL;
+        size_t n_data;
+        void *data;
+        int r;
+
+        /*
+         * Simple test that marshals a basic dbus-message type with a fixed
+         * field-array and body.
+         */
+
+        r = c_dvar_new(&var);
+        assert(!r);
+
+        c_dvar_begin_write(var, type);
+
+        c_dvar_write(var, "(yyyyuu[", 0, 0, 0, 0, 0, 0);
+        c_dvar_write(var, "(y<u>)", 0, c_dvar_type_u, 0);
+        c_dvar_write(var, "(y<y>)", 0, c_dvar_type_y, 0);
+        c_dvar_write(var, "](st))", "", 0);
+
+        r = c_dvar_end_write(var, &data, &n_data);
+        assert(!r);
+
+        free(data);
+}
+
 int main(int argc, char **argv) {
         test_basic_serialization();
+        test_dbus_message();
         return 0;
 }
