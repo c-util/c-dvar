@@ -274,6 +274,33 @@ extern "C" {
         C_DVAR_TI_TUPLE_APPEND(_set, _next)
 
 /**
+ * C_DVAR_T_TUPLE0: XXX
+ */
+#define C_DVAR_T_TUPLE0 ( \
+                0,                                                                      \
+                3,                                                                      \
+                "()",                                                                   \
+                2,                                                                      \
+                0,                                                                      \
+                (                                                                       \
+                        {                                                               \
+                                .size           = 0,                                    \
+                                .alignment      = 3,                                    \
+                                .element        = '(',                                  \
+                                .length         = 2,                                    \
+                                .basic          = 0,                                    \
+                        },                                                              \
+                        {                                                               \
+                                .size           = 0,                                    \
+                                .alignment      = 0,                                    \
+                                .element        = ')',                                  \
+                                .length         = 1,                                    \
+                                .basic          = 0,                                    \
+                        }                                                               \
+                )                                                                       \
+        )
+
+/**
  * C_DVAR_T_TUPLE1(): XXX
  */
 #define C_DVAR_T_TUPLE1(_type1) \

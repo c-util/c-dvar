@@ -15,6 +15,7 @@
 
 static const char test_array_signature[] = {
         "u"
+        "()"
         "(nq)"
         "a{sa(vt)}"
         "({uu}{uu})"
@@ -25,6 +26,10 @@ static const CDVarType test_array[] = {
         /* "u" */
         C_DVAR_T_INIT(
                 C_DVAR_T_u
+        ),
+        /* "()" */
+        C_DVAR_T_INIT(
+                C_DVAR_T_TUPLE0
         ),
         /* "(nq)" */
         C_DVAR_T_INIT(
