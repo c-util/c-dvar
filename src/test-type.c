@@ -11,187 +11,64 @@
 #include <string.h>
 #include "c-dvar.h"
 #include "c-dvar-private.h"
+#include "c-dvar-type.h"
 
 static const char test_array_signature[] = {
         "u"
         "(nq)"
         "a{sa(vt)}"
         "({uu}{uu})"
+        "(yqut)"
 };
 
 static const CDVarType test_array[] = {
         /* "u" */
-        {
-                .size = 4,
-                .alignment = 2,
-                .element = 'u',
-                .length = 1,
-                .basic = 1,
-        },
+        C_DVAR_T_INIT(
+                C_DVAR_T_u
+        ),
         /* "(nq)" */
-        {
-                .size = 4,
-                .alignment = 3,
-                .element = '(',
-                .length = 4,
-                .basic = 0,
-        },
-        {
-                .size = 2,
-                .alignment = 1,
-                .element = 'n',
-                .length = 1,
-                .basic = 1,
-        },
-        {
-                .size = 2,
-                .alignment = 1,
-                .element = 'q',
-                .length = 1,
-                .basic = 1,
-        },
-        {
-                .size = 0,
-                .alignment = 0,
-                .element = ')',
-                .length = 1,
-                .basic = 0,
-        },
+        C_DVAR_T_INIT(
+                C_DVAR_T_TUPLE2(
+                        C_DVAR_T_n,
+                        C_DVAR_T_q
+                )
+        ),
         /* "a{sa(vt)}" */
-        {
-                .size = 0,
-                .alignment = 2,
-                .element = 'a',
-                .length = 9,
-                .basic = 0,
-        },
-        {
-                .size = 0,
-                .alignment = 3,
-                .element = '{',
-                .length = 8,
-                .basic = 0,
-        },
-        {
-                .size = 0,
-                .alignment = 2,
-                .element = 's',
-                .length = 1,
-                .basic = 1,
-        },
-        {
-                .size = 0,
-                .alignment = 2,
-                .element = 'a',
-                .length = 5,
-                .basic = 0,
-        },
-        {
-                .size = 0,
-                .alignment = 3,
-                .element = '(',
-                .length = 4,
-                .basic = 0,
-        },
-        {
-                .size = 0,
-                .alignment = 0,
-                .element = 'v',
-                .length = 1,
-                .basic = 0,
-        },
-        {
-                .size = 8,
-                .alignment = 3,
-                .element = 't',
-                .length = 1,
-                .basic = 1,
-        },
-        {
-                .size = 0,
-                .alignment = 0,
-                .element = ')',
-                .length = 1,
-                .basic = 0,
-        },
-        {
-                .size = 0,
-                .alignment = 0,
-                .element = '}',
-                .length = 1,
-                .basic = 0,
-        },
+        C_DVAR_T_INIT(
+                C_DVAR_T_ARRAY(
+                        C_DVAR_T_PAIR(
+                                C_DVAR_T_s,
+                                C_DVAR_T_ARRAY(
+                                        C_DVAR_T_TUPLE2(
+                                                C_DVAR_T_v,
+                                                C_DVAR_T_t
+                                        )
+                                )
+                        )
+                )
+        ),
         /* "({uu}{uu})" */
-        {
-                .size = 16,
-                .alignment = 3,
-                .element = '(',
-                .length = 10,
-                .basic = 0,
-        },
-        {
-                .size = 8,
-                .alignment = 3,
-                .element = '{',
-                .length = 4,
-                .basic = 0,
-        },
-        {
-                .size = 4,
-                .alignment = 2,
-                .element = 'u',
-                .length = 1,
-                .basic = 1,
-        },
-        {
-                .size = 4,
-                .alignment = 2,
-                .element = 'u',
-                .length = 1,
-                .basic = 1,
-        },
-        {
-                .size = 0,
-                .alignment = 0,
-                .element = '}',
-                .length = 1,
-                .basic = 0,
-        },
-        {
-                .size = 8,
-                .alignment = 3,
-                .element = '{',
-                .length = 4,
-                .basic = 0,
-        },
-        {
-                .size = 4,
-                .alignment = 2,
-                .element = 'u',
-                .length = 1,
-                .basic = 1,
-        },
-        {
-                .size = 4,
-                .alignment = 2,
-                .element = 'u',
-                .length = 1,
-                .basic = 1,
-        },
-        {
-                .size = 0,
-                .alignment = 0,
-                .element = '}',
-                .length = 1,
-                .basic = 0,
-        },
-        {
-                .size = 0,
-                .alignment = 0,
-                .element = ')',
-                .length = 1,
-                .basic = 0,
-        },
+        C_DVAR_T_INIT(
+                C_DVAR_T_TUPLE2(
+                        C_DVAR_T_PAIR(
+                                C_DVAR_T_u,
+                                C_DVAR_T_u
+                        ),
+                        C_DVAR_T_PAIR(
+                                C_DVAR_T_u,
+                                C_DVAR_T_u
+                        )
+                )
+        ),
+        /* "(yqut)" */
+        C_DVAR_T_INIT(
+                C_DVAR_T_TUPLE4(
+                        C_DVAR_T_y,
+                        C_DVAR_T_q,
+                        C_DVAR_T_u,
+                        C_DVAR_T_t
+                )
+        ),
 };
 
 static void test_known_types(void) {

@@ -13,52 +13,25 @@
 #include <stdlib.h>
 #include "c-dvar.h"
 #include "c-dvar-private.h"
+#include "c-dvar-type.h"
 
 static_assert(sizeof(CDVarType) == 4, "Unexpected padding in CDVarType");
 
-/*
- * C_DVAR_EXPAND(): Expand a preprocessor tuple by stripping the surrounding
- *                  parantheses.
- */
-#define C_DVAR_EXPAND(_x) C_DVAR_INTERNAL_EXPAND _x
-#define C_DVAR_INTERNAL_EXPAND(...) __VA_ARGS__
-
-/*
- * C_DVAR_TYPE_?: Those macros are initializers for builtin types. They can be
- *                used to initialize CDVarType objects, if needed. Note that
- *                these are given as tuples, so you might have to strip the
- *                surrounding brackets (via C_DVAR_EXPAND or similar).
- */
-#define C_DVAR_TYPE_y (1, 0, 'y', 1, 1)
-#define C_DVAR_TYPE_b (4, 2, 'b', 1, 1)
-#define C_DVAR_TYPE_n (2, 1, 'n', 1, 1)
-#define C_DVAR_TYPE_q (2, 1, 'q', 1, 1)
-#define C_DVAR_TYPE_i (4, 2, 'i', 1, 1)
-#define C_DVAR_TYPE_u (4, 2, 'u', 1, 1)
-#define C_DVAR_TYPE_x (8, 3, 'x', 1, 1)
-#define C_DVAR_TYPE_t (8, 3, 't', 1, 1)
-#define C_DVAR_TYPE_h (4, 2, 'h', 1, 1)
-#define C_DVAR_TYPE_d (8, 3, 'd', 1, 1)
-#define C_DVAR_TYPE_s (0, 2, 's', 1, 1)
-#define C_DVAR_TYPE_o (0, 2, 'o', 1, 1)
-#define C_DVAR_TYPE_g (0, 0, 'g', 1, 1)
-#define C_DVAR_TYPE_v (0, 0, 'v', 1, 0)
-
 static const CDVarType c_dvar_type_builtins[256] = {
-        ['y'] = { C_DVAR_EXPAND(C_DVAR_TYPE_y) },
-        ['b'] = { C_DVAR_EXPAND(C_DVAR_TYPE_b) },
-        ['n'] = { C_DVAR_EXPAND(C_DVAR_TYPE_n) },
-        ['q'] = { C_DVAR_EXPAND(C_DVAR_TYPE_q) },
-        ['i'] = { C_DVAR_EXPAND(C_DVAR_TYPE_i) },
-        ['u'] = { C_DVAR_EXPAND(C_DVAR_TYPE_u) },
-        ['x'] = { C_DVAR_EXPAND(C_DVAR_TYPE_x) },
-        ['t'] = { C_DVAR_EXPAND(C_DVAR_TYPE_t) },
-        ['h'] = { C_DVAR_EXPAND(C_DVAR_TYPE_h) },
-        ['d'] = { C_DVAR_EXPAND(C_DVAR_TYPE_d) },
-        ['s'] = { C_DVAR_EXPAND(C_DVAR_TYPE_s) },
-        ['o'] = { C_DVAR_EXPAND(C_DVAR_TYPE_o) },
-        ['g'] = { C_DVAR_EXPAND(C_DVAR_TYPE_g) },
-        ['v'] = { C_DVAR_EXPAND(C_DVAR_TYPE_v) },
+        ['y'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_y) },
+        ['b'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_b) },
+        ['n'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_n) },
+        ['q'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_q) },
+        ['i'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_i) },
+        ['u'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_u) },
+        ['x'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_x) },
+        ['t'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_t) },
+        ['h'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_h) },
+        ['d'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_d) },
+        ['s'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_s) },
+        ['o'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_o) },
+        ['g'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_g) },
+        ['v'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_v) },
 };
 
 _public_ const CDVarType * const c_dvar_type_y = &c_dvar_type_builtins['y'];

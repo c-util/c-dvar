@@ -100,6 +100,21 @@ struct CDVarType {
 
 /* builtin */
 
+#define C_DVAR_TYPE_y (1, 0, 'y', 1, 1)
+#define C_DVAR_TYPE_b (4, 2, 'b', 1, 1)
+#define C_DVAR_TYPE_n (2, 1, 'n', 1, 1)
+#define C_DVAR_TYPE_q (2, 1, 'q', 1, 1)
+#define C_DVAR_TYPE_i (4, 2, 'i', 1, 1)
+#define C_DVAR_TYPE_u (4, 2, 'u', 1, 1)
+#define C_DVAR_TYPE_x (8, 3, 'x', 1, 1)
+#define C_DVAR_TYPE_t (8, 3, 't', 1, 1)
+#define C_DVAR_TYPE_h (4, 2, 'h', 1, 1)
+#define C_DVAR_TYPE_d (8, 3, 'd', 1, 1)
+#define C_DVAR_TYPE_s (0, 2, 's', 1, 1)
+#define C_DVAR_TYPE_o (0, 2, 'o', 1, 1)
+#define C_DVAR_TYPE_g (0, 0, 'g', 1, 1)
+#define C_DVAR_TYPE_v (0, 0, 'v', 1, 0)
+
 extern const CDVarType * const c_dvar_type_y;
 extern const CDVarType * const c_dvar_type_b;
 extern const CDVarType * const c_dvar_type_n;
