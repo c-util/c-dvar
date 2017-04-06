@@ -96,6 +96,7 @@ struct CDVarType {
         uint32_t element : 7;
         uint32_t length : 8;
         uint32_t basic : 1;
+        uint32_t __padding : 3;
 };
 
 /* builtin */
