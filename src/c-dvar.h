@@ -129,6 +129,7 @@ extern const CDVarType * const c_dvar_type_s;
 extern const CDVarType * const c_dvar_type_o;
 extern const CDVarType * const c_dvar_type_g;
 extern const CDVarType * const c_dvar_type_v;
+extern const CDVarType * const c_dvar_type_unit;
 
 /* type handling */
 

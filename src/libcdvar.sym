@@ -14,6 +14,7 @@ global:
         c_dvar_type_o;
         c_dvar_type_g;
         c_dvar_type_v;
+        c_dvar_type_unit;
 
         c_dvar_type_new_from_signature;
         c_dvar_type_free;

@@ -48,6 +48,7 @@ _public_ const CDVarType * const c_dvar_type_s = &c_dvar_type_builtins['s'];
 _public_ const CDVarType * const c_dvar_type_o = &c_dvar_type_builtins['o'];
 _public_ const CDVarType * const c_dvar_type_g = &c_dvar_type_builtins['g'];
 _public_ const CDVarType * const c_dvar_type_v = &c_dvar_type_builtins['v'];
+_public_ const CDVarType * const c_dvar_type_unit = (const CDVarType[]){ C_DVAR_T_INIT(C_DVAR_T_TUPLE0) };
 
 /**
  * c_dvar_type_new_from_signature() - parse D-Bus type from type signature

@@ -76,6 +76,12 @@ static const CDVarType test_array[] = {
         ),
 };
 
+static void test_common(void) {
+        assert(!memcmp(c_dvar_type_unit,
+                       (const CDVarType[]){ C_DVAR_T_INIT(C_DVAR_T_TUPLE0) },
+                       c_dvar_type_unit->length * sizeof(CDVarType)));
+}
+
 static void test_known_types(void) {
         _cleanup_(c_dvar_type_freep) CDVarType *type = NULL;
         const CDVarType *expect;
@@ -187,6 +193,7 @@ static void test_invalid_types(void) {
 }
 
 int main(int argc, char **argv) {
+        test_common();
         test_known_types();
         test_valid_types();
         test_invalid_types();

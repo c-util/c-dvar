@@ -45,6 +45,7 @@ static void test_api(void) {
         assert(c_dvar_type_o);
         assert(c_dvar_type_g);
         assert(c_dvar_type_v);
+        assert(c_dvar_type_unit);
 
         /* type handling */
 
