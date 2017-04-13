@@ -17,38 +17,38 @@
 
 static_assert(sizeof(CDVarType) == 4, "Unexpected padding in CDVarType");
 
-static const CDVarType c_dvar_type_builtins[256] = {
-        ['y'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_y) },
-        ['b'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_b) },
-        ['n'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_n) },
-        ['q'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_q) },
-        ['i'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_i) },
-        ['u'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_u) },
-        ['x'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_x) },
-        ['t'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_t) },
-        ['h'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_h) },
-        ['d'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_d) },
-        ['s'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_s) },
-        ['o'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_o) },
-        ['g'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_g) },
-        ['v'] = { C_DVAR_TI_EXPAND(C_DVAR_TYPE_v) },
-};
+_public_ const CDVarType c_dvar_type_y[] = { C_DVAR_T_INIT(C_DVAR_T_y) };
+_public_ const CDVarType c_dvar_type_b[] = { C_DVAR_T_INIT(C_DVAR_T_b) };
+_public_ const CDVarType c_dvar_type_n[] = { C_DVAR_T_INIT(C_DVAR_T_n) };
+_public_ const CDVarType c_dvar_type_q[] = { C_DVAR_T_INIT(C_DVAR_T_q) };
+_public_ const CDVarType c_dvar_type_i[] = { C_DVAR_T_INIT(C_DVAR_T_i) };
+_public_ const CDVarType c_dvar_type_u[] = { C_DVAR_T_INIT(C_DVAR_T_u) };
+_public_ const CDVarType c_dvar_type_x[] = { C_DVAR_T_INIT(C_DVAR_T_x) };
+_public_ const CDVarType c_dvar_type_t[] = { C_DVAR_T_INIT(C_DVAR_T_t) };
+_public_ const CDVarType c_dvar_type_h[] = { C_DVAR_T_INIT(C_DVAR_T_h) };
+_public_ const CDVarType c_dvar_type_d[] = { C_DVAR_T_INIT(C_DVAR_T_d) };
+_public_ const CDVarType c_dvar_type_s[] = { C_DVAR_T_INIT(C_DVAR_T_s) };
+_public_ const CDVarType c_dvar_type_o[] = { C_DVAR_T_INIT(C_DVAR_T_o) };
+_public_ const CDVarType c_dvar_type_g[] = { C_DVAR_T_INIT(C_DVAR_T_g) };
+_public_ const CDVarType c_dvar_type_v[] = { C_DVAR_T_INIT(C_DVAR_T_v) };
+_public_ const CDVarType c_dvar_type_unit[] = { C_DVAR_T_INIT(C_DVAR_T_TUPLE0) };
 
-_public_ const CDVarType * const c_dvar_type_y = &c_dvar_type_builtins['y'];
-_public_ const CDVarType * const c_dvar_type_b = &c_dvar_type_builtins['b'];
-_public_ const CDVarType * const c_dvar_type_n = &c_dvar_type_builtins['n'];
-_public_ const CDVarType * const c_dvar_type_q = &c_dvar_type_builtins['q'];
-_public_ const CDVarType * const c_dvar_type_i = &c_dvar_type_builtins['i'];
-_public_ const CDVarType * const c_dvar_type_u = &c_dvar_type_builtins['u'];
-_public_ const CDVarType * const c_dvar_type_x = &c_dvar_type_builtins['x'];
-_public_ const CDVarType * const c_dvar_type_t = &c_dvar_type_builtins['t'];
-_public_ const CDVarType * const c_dvar_type_h = &c_dvar_type_builtins['h'];
-_public_ const CDVarType * const c_dvar_type_d = &c_dvar_type_builtins['d'];
-_public_ const CDVarType * const c_dvar_type_s = &c_dvar_type_builtins['s'];
-_public_ const CDVarType * const c_dvar_type_o = &c_dvar_type_builtins['o'];
-_public_ const CDVarType * const c_dvar_type_g = &c_dvar_type_builtins['g'];
-_public_ const CDVarType * const c_dvar_type_v = &c_dvar_type_builtins['v'];
-_public_ const CDVarType * const c_dvar_type_unit = (const CDVarType[]){ C_DVAR_T_INIT(C_DVAR_T_TUPLE0) };
+static const CDVarType *c_dvar_type_builtins[256] = {
+        ['y'] = c_dvar_type_y,
+        ['b'] = c_dvar_type_b,
+        ['n'] = c_dvar_type_n,
+        ['q'] = c_dvar_type_q,
+        ['i'] = c_dvar_type_i,
+        ['u'] = c_dvar_type_u,
+        ['x'] = c_dvar_type_x,
+        ['t'] = c_dvar_type_t,
+        ['h'] = c_dvar_type_h,
+        ['d'] = c_dvar_type_d,
+        ['s'] = c_dvar_type_s,
+        ['o'] = c_dvar_type_o,
+        ['g'] = c_dvar_type_g,
+        ['v'] = c_dvar_type_v,
+};
 
 /**
  * c_dvar_type_new_from_signature() - parse D-Bus type from type signature
@@ -135,7 +135,7 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
         for (i = 0; i < n_type; ++i) {
                 c = signature[i];
                 this = type + i;
-                builtin = c_dvar_type_builtins + (uint8_t)c;
+                builtin = c_dvar_type_builtins[(uint8_t)c];
                 i_container = container ? (container - type) : 0;
 
                 /*
@@ -146,7 +146,7 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
                 if (container && container->element == '{') {
                         if (i < i_container + 2) {
                                 /* first type must be basic */
-                                if (_unlikely_(!builtin->basic))
+                                if (_unlikely_(!builtin || !builtin->basic))
                                         return C_DVAR_E_INVALID_TYPE;
                         } else if (i == i_container + 2) {
                                 /* there must be a second type */
@@ -217,7 +217,7 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
                         break;
 
                 default:
-                        if (_unlikely_(!builtin->element))
+                        if (_unlikely_(!builtin))
                                 return C_DVAR_E_INVALID_TYPE;
 
                         /*

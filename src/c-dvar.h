@@ -116,21 +116,21 @@ struct CDVarType {
 #define C_DVAR_TYPE_g (0, 0, 'g', 1, 1)
 #define C_DVAR_TYPE_v (0, 0, 'v', 1, 0)
 
-extern const CDVarType * const c_dvar_type_y;
-extern const CDVarType * const c_dvar_type_b;
-extern const CDVarType * const c_dvar_type_n;
-extern const CDVarType * const c_dvar_type_q;
-extern const CDVarType * const c_dvar_type_i;
-extern const CDVarType * const c_dvar_type_u;
-extern const CDVarType * const c_dvar_type_x;
-extern const CDVarType * const c_dvar_type_t;
-extern const CDVarType * const c_dvar_type_h;
-extern const CDVarType * const c_dvar_type_d;
-extern const CDVarType * const c_dvar_type_s;
-extern const CDVarType * const c_dvar_type_o;
-extern const CDVarType * const c_dvar_type_g;
-extern const CDVarType * const c_dvar_type_v;
-extern const CDVarType * const c_dvar_type_unit;
+extern const CDVarType c_dvar_type_y[];
+extern const CDVarType c_dvar_type_b[];
+extern const CDVarType c_dvar_type_n[];
+extern const CDVarType c_dvar_type_q[];
+extern const CDVarType c_dvar_type_i[];
+extern const CDVarType c_dvar_type_u[];
+extern const CDVarType c_dvar_type_x[];
+extern const CDVarType c_dvar_type_t[];
+extern const CDVarType c_dvar_type_h[];
+extern const CDVarType c_dvar_type_d[];
+extern const CDVarType c_dvar_type_s[];
+extern const CDVarType c_dvar_type_o[];
+extern const CDVarType c_dvar_type_g[];
+extern const CDVarType c_dvar_type_v[];
+extern const CDVarType c_dvar_type_unit[];
 
 /* type handling */
 
