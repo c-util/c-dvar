@@ -15,10 +15,12 @@
 #include <string.h>
 #include "c-dvar.h"
 #include "c-dvar-private.h"
+#include "c-dvar-utf8.h"
 
 static bool c_dvar_is_string(const char *str, size_t len) {
-        /* XXX: verify @str is a valid UTF-8 string */
-        return (strlen(str) == len);
+        c_dvar_utf8_verify(&str, &len);
+
+        return (*str == '\0' && len == 0);
 }
 
 static bool c_dvar_is_path(const char *str, size_t len) {
