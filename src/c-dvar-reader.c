@@ -16,19 +16,53 @@
 #include "c-dvar.h"
 #include "c-dvar-private.h"
 
-static bool c_dvar_is_path(const char *str) {
-        /* XXX: verify @str is a valid object path */
-        return true;
+static bool c_dvar_is_string(const char *str, size_t len) {
+        /* XXX: verify @str is a valid UTF-8 string */
+        return (strlen(str) == len);
 }
 
-static bool c_dvar_is_signature(const char *str) {
+static bool c_dvar_is_path(const char *str, size_t len) {
+        bool slash = true;
+
+        if (_unlikely_(*str != '/' || len == 0)) {
+                return false;
+        } else {
+                ++str;
+                --len;
+        }
+
+        if (len == 0)
+                return true;
+
+        while (*str && len) {
+                if (*str == '/') {
+                        if (_unlikely_(slash))
+                                return false;
+
+                        slash = true;
+                } else {
+                        if (_unlikely_(*str < 'A' || *str > 'z' ||
+                                       (*str < 'a' && *str > 'Z' && *str != '_')))
+                                return false;
+
+                        slash = false;
+                }
+
+                ++str;
+                --len;
+        }
+
+        return (len == 0 && !slash);
+}
+
+static bool c_dvar_is_signature(const char *str, size_t len) {
         /* XXX: verify @str is a valid signature */
-        return true;
+        return (strlen(str) == len);
 }
 
-static bool c_dvar_is_type(const char *str) {
+static bool c_dvar_is_type(const char *str, size_t len) {
         /* XXX: verify @str is a valid signature with a single complete type */
-        return true;
+        return (strlen(str) == len);
 }
 
 static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_t n_data) {
@@ -253,7 +287,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                         if (r)
                                 goto error;
 
-                        if (u8 || strlen(str) != n || !c_dvar_is_type(str)) {
+                        if (u8 || !c_dvar_is_type(str, n)) {
                                 r = C_DVAR_E_CORRUPT_DATA;
                                 goto error;
                         }
@@ -411,9 +445,9 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                                 goto error;
 
                         if (u8 ||
-                            strlen(str) != u32 ||
-                            (c == 'o' && !c_dvar_is_path(str)) ||
-                            (c == 'g' && !c_dvar_is_signature(str))) {
+                            (c == 's' && !c_dvar_is_string(str, u32)) ||
+                            (c == 'o' && !c_dvar_is_path(str, u32)) ||
+                            (c == 'g' && !c_dvar_is_signature(str, u32))) {
                                 r = C_DVAR_E_CORRUPT_DATA;
                                 goto error;
                         }
