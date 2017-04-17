@@ -55,3 +55,6 @@ endif
 
 test_type = executable('test-type', ['test-type.c'], dependencies: libcdvar_dep)
 test('Type and Signature Parser', test_type)
+
+test_utf8 = executable('test-utf8', ['test-utf8.c'])
+test('UTF-8 Validation', test_utf8)
