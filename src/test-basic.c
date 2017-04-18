@@ -143,8 +143,47 @@ static void test_dbus_message(void) {
         free(data);
 }
 
+static void test_dbus_body(void) {
+        static const CDVarType types[] = {
+                /* sss */
+                C_DVAR_T_INIT(C_DVAR_T_s),
+                C_DVAR_T_INIT(C_DVAR_T_s),
+                C_DVAR_T_INIT(C_DVAR_T_s),
+        };
+        _cleanup_(c_dvar_freep) CDVar *var = NULL;
+        const char *str;
+        size_t n_data;
+        void *data;
+        int r;
+
+        /*
+         * Simple test that marshals a basic dbus-message body with 3 strings.
+         */
+
+        r = c_dvar_new(&var);
+        assert(!r);
+
+        c_dvar_begin_write(var, types, 3);
+        c_dvar_write(var, "sss", "fo", "ob", "ar");
+        r = c_dvar_end_write(var, &data, &n_data);
+        assert(!r);
+
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), types, 3, data, n_data);
+        c_dvar_read(var, "s", &str);
+        assert(!strcmp(str, "fo"));
+        c_dvar_read(var, "s", &str);
+        assert(!strcmp(str, "ob"));
+        c_dvar_read(var, "s", &str);
+        assert(!strcmp(str, "ar"));
+        r = c_dvar_end_read(var);
+        assert(!r);
+
+        free(data);
+}
+
 int main(int argc, char **argv) {
         test_basic_serialization();
         test_dbus_message();
+        test_dbus_body();
         return 0;
 }
