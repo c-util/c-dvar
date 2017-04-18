@@ -34,7 +34,7 @@ static bool c_dvar_is_path(const char *str, size_t len) {
         ++str;
         --len;
 
-        while (*str && len) {
+        while (len) {
                 if (*str == '/') {
                         if (_unlikely_(slash))
                                 return false;
@@ -52,7 +52,7 @@ static bool c_dvar_is_path(const char *str, size_t len) {
                 --len;
         }
 
-        return (len == 0 && !slash);
+        return !slash;
 }
 
 static bool c_dvar_is_signature(const char *str, size_t len) {
