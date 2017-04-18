@@ -27,6 +27,7 @@ _public_ int c_dvar_new(CDVar **varp) {
 
         var->data = NULL;
         var->n_data = 0;
+        var->n_root_type = 0;
         var->poison = 0;
         var->ro = false;
         var->big_endian = !!(__BYTE_ORDER == __BIG_ENDIAN);
@@ -67,6 +68,7 @@ _public_ void c_dvar_reset(CDVar *var) {
 
         var->data = NULL;
         var->n_data = 0;
+        var->n_root_type = 0;
         var->poison = 0;
         var->ro = false;
         var->big_endian = !!(__BYTE_ORDER == __BIG_ENDIAN);
@@ -100,24 +102,30 @@ _public_ void c_dvar_get_data(CDVar *var, void **datap, size_t *n_datap) {
 /**
  * c_dvar_get_root_type() - XXX
  */
-_public_ const CDVarType *c_dvar_get_root_type(CDVar *var) {
-        return var->current ? var->levels[0].parent_type : NULL;
+_public_ void c_dvar_get_root_types(CDVar *var, const CDVarType **typesp, size_t *n_typesp) {
+        if (typesp)
+                *typesp = var->current ? var->levels[0].parent_types : NULL;
+        if (n_typesp)
+                *n_typesp = var->current ? var->levels[0].n_parent_types : 0;
 }
 
 /**
  * c_dvar_get_parent_type() - XXX
  */
-_public_ const CDVarType *c_dvar_get_parent_type(CDVar *var) {
-        return var->current ? var->current->parent_type : NULL;
+_public_ void c_dvar_get_parent_types(CDVar *var, const CDVarType **typesp, size_t *n_typesp) {
+        if (typesp)
+                *typesp = var->current ? var->current->parent_types : NULL;
+        if (n_typesp)
+                *n_typesp = var->current ? var->current->n_parent_types : 0;
 }
 
 void c_dvar_rewind(CDVar *var) {
         for ( ; var->current > var->levels; --var->current)
-                if (var->current->allocated_parent_type)
-                        free(var->current->parent_type);
+                if (var->current->allocated_parent_types)
+                        free(var->current->parent_types);
 
         /* root-level type is always caller-owned */
-        assert(!var->current->allocated_parent_type);
+        assert(!var->current->allocated_parent_types);
 }
 
 /*
@@ -214,11 +222,12 @@ int c_dvar_next_varg(CDVar *var, char c) {
 void c_dvar_push(CDVar *var) {
         ++var->current;
 
-        var->current->parent_type = (var->current - 1)->parent_type;
+        var->current->parent_types = (var->current - 1)->parent_types;
+        var->current->n_parent_types = (var->current - 1)->n_parent_types;
         var->current->i_type = (var->current - 1)->i_type + 1;
         var->current->n_type = (var->current - 1)->i_type->length - 1;
         var->current->container = (var->current - 1)->i_type->element;
-        var->current->allocated_parent_type = false;
+        var->current->allocated_parent_types = false;
         var->current->i_buffer = (var->current - 1)->i_buffer;
 
         if (var->ro)
@@ -230,8 +239,8 @@ void c_dvar_push(CDVar *var) {
 void c_dvar_pop(CDVar *var) {
         size_t n;
 
-        if (var->current->allocated_parent_type)
-                free(var->current->parent_type);
+        if (var->current->allocated_parent_types)
+                free(var->current->parent_types);
 
         --var->current;
 

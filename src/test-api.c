@@ -69,8 +69,8 @@ static void test_api(void) {
         assert(c_dvar_is_big_endian(var) == (__BYTE_ORDER == __BIG_ENDIAN));
         assert(!c_dvar_get_poison(var));
         c_dvar_get_data(var, NULL, NULL);
-        assert(!c_dvar_get_root_type(var));
-        assert(!c_dvar_get_parent_type(var));
+        c_dvar_get_root_types(var, NULL, NULL);
+        c_dvar_get_parent_types(var, NULL, NULL);
 
         var = c_dvar_free(var);
 
@@ -79,7 +79,7 @@ static void test_api(void) {
         r = c_dvar_new(&var);
         assert(!r);
 
-        c_dvar_begin_read(var, c_dvar_is_big_endian(var), &t, &u32, sizeof(u32));
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), &t, 1, &u32, sizeof(u32));
         assert(c_dvar_more(var));
         c_dvar_read(var, "u", &value);
         c_dvar_skip(var, "");
@@ -94,7 +94,7 @@ static void test_api(void) {
         r = c_dvar_new(&var);
         assert(!r);
 
-        c_dvar_begin_write(var, &t);
+        c_dvar_begin_write(var, &t, 1);
         c_dvar_write(var, "u", 0);
         r = c_dvar_end_write(var, &data, &n_data);
         assert(r >= 0);

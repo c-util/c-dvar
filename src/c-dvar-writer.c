@@ -115,7 +115,8 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                         var->data[var->current->i_buffer - 1] = 0;
 
                         c_dvar_push(var);
-                        var->current->parent_type = (CDVarType *)type;
+                        var->current->parent_types = (CDVarType *)type;
+                        var->current->n_parent_types = 1;
                         var->current->i_type = (CDVarType *)type;
                         var->current->n_type = type->length;
                         continue; /* do not advance type iterator */
@@ -257,17 +258,28 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
 /**
  * c_dvar_begin_write() - XXX
  */
-_public_ void c_dvar_begin_write(CDVar *var, const CDVarType *type) {
+_public_ void c_dvar_begin_write(CDVar *var, const CDVarType *types, size_t n_types) {
+        size_t i;
+
         c_dvar_reset(var);
 
         var->current = var->levels;
-        var->current->parent_type = (CDVarType *)type;
-        var->current->i_type = (CDVarType *)type;
-        var->current->n_type = type->length;
+        var->current->parent_types = (CDVarType *)types;
+        var->current->n_parent_types = n_types;
+        var->current->i_type = (CDVarType *)types;
+        var->current->n_type = 0;
         var->current->container = 0;
-        var->current->allocated_parent_type = false;
+        var->current->allocated_parent_types = false;
         var->current->i_buffer = 0;
         var->current->index = 0;
+
+        for (i = 0; i < n_types; ++i) {
+                assert(var->n_root_type + types->length >= types->length);
+                var->n_root_type += types->length;
+                types += types->length;
+        }
+
+        var->current->n_type = var->n_root_type;
 }
 
 /**
@@ -308,8 +320,8 @@ _public_ int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap) {
         var->n_data = 0;
 
         c_dvar_rewind(var);
-        var->current->i_type = var->current->parent_type;
-        var->current->n_type = var->current->parent_type->length;
+        var->current->i_type = var->current->parent_types;
+        var->current->n_type = var->n_root_type;
         var->current->i_buffer = 0;
         var->current->index = 0;
 

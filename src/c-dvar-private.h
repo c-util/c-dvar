@@ -24,11 +24,12 @@ typedef struct CDVarLevel CDVarLevel;
 #define ALIGN_TO(_val, _alignment) ((_val + (_alignment) - 1) & ~((_alignment) - 1))
 
 struct CDVarLevel {
-        CDVarType *parent_type;
+        CDVarType *parent_types;
         CDVarType *i_type;
+        uint8_t n_parent_types;
         uint8_t n_type;
         uint8_t container : 7;
-        uint8_t allocated_parent_type : 1;
+        uint8_t allocated_parent_types : 1;
         size_t i_buffer;
         union {
                 /* reader */
@@ -43,6 +44,7 @@ struct CDVar {
         size_t n_data;
 
         int poison;
+        uint8_t n_root_type;
         bool ro : 1;
         bool big_endian : 1;
 

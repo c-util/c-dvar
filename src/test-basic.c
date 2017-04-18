@@ -41,7 +41,7 @@ static void test_basic_serialization(void) {
 
         /* write example data */
 
-        c_dvar_begin_write(var, type);
+        c_dvar_begin_write(var, type, 1);
 
         c_dvar_write(var,
                      "(yu[{s<q>}{s<t>}])",
@@ -59,7 +59,7 @@ static void test_basic_serialization(void) {
 
         /* read back example data */
 
-        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, data, n_data);
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, 1, data, n_data);
 
         c_dvar_read(var,
                     "(yu[{s<q>}{s<t>}])",
@@ -83,7 +83,7 @@ static void test_basic_serialization(void) {
 
         /* skip example data */
 
-        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, data, n_data);
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, 1, data, n_data);
 
         c_dvar_skip(var, "(yu[{sv}{s<t>}])", c_dvar_type_t);
 
@@ -130,7 +130,7 @@ static void test_dbus_message(void) {
         r = c_dvar_new(&var);
         assert(!r);
 
-        c_dvar_begin_write(var, type);
+        c_dvar_begin_write(var, type, 1);
 
         c_dvar_write(var, "(yyyyuu[", 0, 0, 0, 0, 0, 0);
         c_dvar_write(var, "(y<u>)", 0, c_dvar_type_u, 0);

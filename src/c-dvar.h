@@ -148,16 +148,16 @@ void c_dvar_reset(CDVar *var);
 bool c_dvar_is_big_endian(CDVar *var);
 int c_dvar_get_poison(CDVar *var);
 void c_dvar_get_data(CDVar *var, void **datap, size_t *n_datap);
-const CDVarType *c_dvar_get_root_type(CDVar *var);
-const CDVarType *c_dvar_get_parent_type(CDVar *var);
+void c_dvar_get_root_types(CDVar *var, const CDVarType **typesp, size_t *n_typesp);
+void c_dvar_get_parent_types(CDVar *var, const CDVarType **typesp, size_t *n_typesp);
 
-void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *type, const void *data, size_t n_data);
+void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *types, size_t n_types, const void *data, size_t n_data);
 bool c_dvar_more(CDVar *var);
 int c_dvar_vread(CDVar *var, const char *format, va_list args);
 int c_dvar_vskip(CDVar *var, const char *format, va_list args);
 int c_dvar_end_read(CDVar *var);
 
-void c_dvar_begin_write(CDVar *var, const CDVarType *type);
+void c_dvar_begin_write(CDVar *var, const CDVarType *types, size_t n_types);
 int c_dvar_vwrite(CDVar *var, const char *format, va_list args);
 int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap);
 

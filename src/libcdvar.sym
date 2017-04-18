@@ -27,8 +27,8 @@ global:
         c_dvar_is_big_endian;
         c_dvar_get_poison;
         c_dvar_get_data;
-        c_dvar_get_root_type;
-        c_dvar_get_parent_type;
+        c_dvar_get_root_types;
+        c_dvar_get_parent_types;
 
         c_dvar_begin_read;
         c_dvar_more;
