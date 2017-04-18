@@ -53,6 +53,9 @@ if libdbus_typenum_dep.found()
         test('Type and Data Verification with Enumerated Types', test_enumerated)
 endif
 
+test_string = executable('test-string', ['test-string.c'], dependencies: libcdvar_dep)
+test('D-Bus String Restrictions', test_string)
+
 test_type = executable('test-type', ['test-type.c'], dependencies: libcdvar_dep)
 test('Type and Signature Parser', test_type)
 

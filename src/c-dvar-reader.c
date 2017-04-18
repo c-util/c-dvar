@@ -17,13 +17,13 @@
 #include "c-dvar-private.h"
 #include "c-dvar-utf8.h"
 
-static bool c_dvar_is_string(const char *str, size_t len) {
+bool c_dvar_is_string(const char *str, size_t len) {
         c_dvar_utf8_verify(&str, &len);
 
         return (*str == '\0' && len == 0);
 }
 
-static bool c_dvar_is_path(const char *str, size_t len) {
+bool c_dvar_is_path(const char *str, size_t len) {
         bool slash = true;
         size_t i;
 
@@ -170,7 +170,7 @@ static const char *c_dvar_verify_type(const char *string, size_t n_string) {
         return NULL;
 }
 
-static bool c_dvar_is_signature(const char *string, size_t n_string) {
+bool c_dvar_is_signature(const char *string, size_t n_string) {
         const char *next;
 
         if (_unlikely_(n_string > 255))
@@ -188,7 +188,7 @@ static bool c_dvar_is_signature(const char *string, size_t n_string) {
         return true;
 }
 
-static bool c_dvar_is_type(const char *string, size_t n_string) {
+bool c_dvar_is_type(const char *string, size_t n_string) {
         return string + n_string == c_dvar_verify_type(string, n_string);
 }
 

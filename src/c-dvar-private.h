@@ -50,6 +50,11 @@ struct CDVar {
         CDVarLevel levels[C_DVAR_TYPE_DEPTH_MAX + 1];
 };
 
+bool c_dvar_is_string(const char *str, size_t len);
+bool c_dvar_is_path(const char *str, size_t len);
+bool c_dvar_is_signature(const char *string, size_t n_string);
+bool c_dvar_is_type(const char *string, size_t n_string);
+
 void c_dvar_rewind(CDVar *var);
 int c_dvar_next_varg(CDVar *var, char c);
 void c_dvar_push(CDVar *var);
