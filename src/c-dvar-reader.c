@@ -25,36 +25,28 @@ static bool c_dvar_is_string(const char *str, size_t len) {
 
 static bool c_dvar_is_path(const char *str, size_t len) {
         bool slash = true;
+        size_t i;
 
         if (_unlikely_(len == 0 || *str != '/'))
                 return false;
-        if (len == 1)
-                return true;
 
-        ++str;
-        --len;
-
-        while (len) {
-                if (*str == '/') {
+        for (i = 1; i < len; ++i) {
+                if (str[i] == '/') {
                         if (_unlikely_(slash))
                                 return false;
 
                         slash = true;
+                } else if (_unlikely_(!((str[i] >= 'A' && str[i] <= 'Z') ||
+                                        (str[i] >= 'a' && str[i] <= 'z') ||
+                                        (str[i] >= '0' && str[i] <= '9') ||
+                                        (str[i] == '_')))) {
+                        return false;
                 } else {
-                        if (_unlikely_(!((*str >= 'A' && *str <= 'Z') ||
-                                         (*str >= 'a' && *str <= 'z') ||
-                                         (*str >= '0' && *str <= '9') ||
-                                         (*str == '_'))))
-                                return false;
-
                         slash = false;
                 }
-
-                ++str;
-                --len;
         }
 
-        return !slash;
+        return !slash || len == 1;
 }
 
 static bool c_dvar_is_signature(const char *str, size_t len) {
