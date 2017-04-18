@@ -77,6 +77,13 @@ static const CDVarType test_array[] = {
 };
 
 static void test_common(void) {
+        CDVarType *type = (CDVarType[2]){};
+        int r;
+
+        r = c_dvar_type_new_from_string(&type, "()");
+        assert(!r);
+
+        assert(!memcmp(c_dvar_type_unit, type, type->length * sizeof(*type)));
         assert(!memcmp(c_dvar_type_unit,
                        (const CDVarType[]){ C_DVAR_T_INIT(C_DVAR_T_TUPLE0) },
                        c_dvar_type_unit->length * sizeof(CDVarType)));
@@ -132,7 +139,7 @@ static void test_valid_types(void) {
                 "((((((((((((((((((((((((((((((((aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaau))))))))))))))))))))))))))))))))",
                 "a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(a(u))))))))))))))))))))))))))))))))",
         };
-        CDVarType *type;
+        CDVarType *type = NULL;
         size_t i;
         int r;
 
@@ -144,7 +151,7 @@ static void test_valid_types(void) {
         for (i = 0; i < sizeof(signatures) / sizeof(*signatures); ++i) {
                 r = c_dvar_type_new_from_string(&type, signatures[i]);
                 assert(!r);
-                c_dvar_type_free(type);
+                type = c_dvar_type_free(type);
         }
 }
 

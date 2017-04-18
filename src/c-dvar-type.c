@@ -60,9 +60,14 @@ static const CDVarType *c_dvar_type_builtins[256] = {
  * does not require 0-termination) and stores the first fully parsed type in
  * @typep.
  *
- * On success, this allocates a new type array and stores the pointer to it in
- * @typep. The caller is responsible to free it via c_dvar_type_free() once
- * done.
+ * On success, this fills in a type array in @typep. If @typep is non-NULL, it
+ * must point to a pre-allocated array of the correct length (at most
+ * @n_signature elements). If @typep is NULL, it is dynamically allocated and
+ * the caller is responsible to free it via c_dvar_type_free() once done.
+ *
+ * In case @typep is non-NULL and pre-allocated by the caller, this function
+ * might modify it even if it ends up returning an error code. Hence, the
+ * contents of the type array are undefined on failure.
  *
  * This function parses the type signature from the beginning until it fully
  * parsed a single complete type. The remaining bytes of the signature are not
@@ -76,8 +81,8 @@ static const CDVarType *c_dvar_type_builtins[256] = {
  *         C_DVAR_E_INVALID_TYPE if element constellation is not valid.
  */
 _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signature, size_t n_signature) {
-        _cleanup_(c_dvar_type_freep) CDVarType *type = NULL;
-        CDVarType *stack[C_DVAR_TYPE_DEPTH_MAX], *container, *this;
+        _cleanup_(c_dvar_type_freep) CDVarType *allocated_type = NULL;
+        CDVarType *type, *stack[C_DVAR_TYPE_DEPTH_MAX], *container, *this;
         size_t i, i_container, n_type, depth, depth_tuple;
         const CDVarType *builtin;
         char c;
@@ -124,9 +129,15 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
          * @container compared to @type (0 if NULL).
          */
 
-        type = malloc(n_type * sizeof(*type));
-        if (!type)
-                return -ENOMEM;
+        if (*typep) {
+                type = *typep;
+        } else {
+                allocated_type = malloc(n_type * sizeof(*allocated_type));
+                if (!allocated_type)
+                        return -ENOMEM;
+
+                type = allocated_type;
+        }
 
         depth = 0;
         depth_tuple = 0;
@@ -262,7 +273,7 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
 
                 if (!container) {
                         *typep = type;
-                        type = NULL;
+                        allocated_type = NULL;
                         return 0;
                 }
         }

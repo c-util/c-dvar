@@ -174,7 +174,7 @@ int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap);
  *         code on parser errors.
  */
 static inline int c_dvar_type_new_from_string(CDVarType **typep, const char *str) {
-        CDVarType *type;
+        CDVarType *type = *typep ? : NULL;
         size_t n;
         int r;
 
@@ -184,7 +184,8 @@ static inline int c_dvar_type_new_from_string(CDVarType **typep, const char *str
                 return r;
 
         if (n != type->length) {
-                c_dvar_type_free(type);
+                if (!*typep)
+                        c_dvar_type_free(type);
                 return C_DVAR_E_INVALID_TYPE;
         }
 

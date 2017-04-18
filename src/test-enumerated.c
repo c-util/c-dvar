@@ -14,7 +14,7 @@
 #include "c-dvar-private.h"
 
 static void test_valid_type(const char *typestr, size_t n_typestr) {
-        CDVarType *type;
+        CDVarType *type = NULL;
         int r;
 
         /* verify @typestr is a valid type */
