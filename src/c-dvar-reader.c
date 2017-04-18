@@ -26,12 +26,11 @@ static bool c_dvar_is_string(const char *str, size_t len) {
 static bool c_dvar_is_path(const char *str, size_t len) {
         bool slash = true;
 
-        if (_unlikely_(*str != '/' || len == 0)) {
+        if (_unlikely_(len == 0 || *str != '/'))
                 return false;
-        } else {
-                ++str;
-                --len;
-        }
+
+        ++str;
+        --len;
 
         if (len == 0)
                 return true;
