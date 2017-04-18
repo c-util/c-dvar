@@ -41,8 +41,10 @@ static bool c_dvar_is_path(const char *str, size_t len) {
 
                         slash = true;
                 } else {
-                        if (_unlikely_(*str < 'A' || *str > 'z' ||
-                                       (*str < 'a' && *str > 'Z' && *str != '_')))
+                        if (_unlikely_(!((*str >= 'A' && *str <= 'Z') ||
+                                         (*str >= 'a' && *str <= 'z') ||
+                                         (*str >= '0' && *str <= '9') ||
+                                         (*str == '_'))))
                                 return false;
 
                         slash = false;
