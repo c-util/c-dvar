@@ -28,12 +28,11 @@ static bool c_dvar_is_path(const char *str, size_t len) {
 
         if (_unlikely_(len == 0 || *str != '/'))
                 return false;
+        if (len == 1)
+                return true;
 
         ++str;
         --len;
-
-        if (len == 0)
-                return true;
 
         while (*str && len) {
                 if (*str == '/') {
