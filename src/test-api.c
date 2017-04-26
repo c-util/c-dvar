@@ -15,7 +15,8 @@
 
 static void test_api(void) {
         __attribute__((__cleanup__(c_dvar_type_freep))) CDVarType *type = NULL;
-        __attribute__((__cleanup__(c_dvar_freep))) CDVar *var = NULL;
+        __attribute__((__cleanup__(c_dvar_deinitp))) CDVar var;
+        __attribute__((__cleanup__(c_dvar_freep))) CDVar *heap_var = NULL;
         static const alignas(8) uint32_t u32 = 7;
         static const CDVarType t = {
                 .size = 4,
@@ -60,49 +61,52 @@ static void test_api(void) {
 
         type = c_dvar_type_free(type);
 
-        /* variant management */
-
-        r = c_dvar_new(&var);
+        /* heap-allocated variant */
+        r = c_dvar_new(&heap_var);
         assert(!r);
 
-        c_dvar_reset(var);
-        assert(c_dvar_is_big_endian(var) == (__BYTE_ORDER == __BIG_ENDIAN));
-        assert(!c_dvar_get_poison(var));
-        c_dvar_get_data(var, NULL, NULL);
-        c_dvar_get_root_types(var, NULL, NULL);
-        c_dvar_get_parent_types(var, NULL, NULL);
+        heap_var = c_dvar_free(heap_var);
 
-        var = c_dvar_free(var);
+        /* variant management */
+
+        c_dvar_init(&var);
+
+        c_dvar_deinit(&var);
+        assert(c_dvar_is_big_endian(&var) == (__BYTE_ORDER == __BIG_ENDIAN));
+        assert(!c_dvar_get_poison(&var));
+        c_dvar_get_data(&var, NULL, NULL);
+        c_dvar_get_root_types(&var, NULL, NULL);
+        c_dvar_get_parent_types(&var, NULL, NULL);
+
+        c_dvar_deinit(&var);
 
         /* reader */
 
-        r = c_dvar_new(&var);
-        assert(!r);
+        c_dvar_init(&var);
 
-        c_dvar_begin_read(var, c_dvar_is_big_endian(var), &t, 1, &u32, sizeof(u32));
-        assert(c_dvar_more(var));
-        c_dvar_read(var, "u", &value);
-        c_dvar_skip(var, "");
-        r = c_dvar_end_read(var);
+        c_dvar_begin_read(&var, c_dvar_is_big_endian(&var), &t, 1, &u32, sizeof(u32));
+        assert(c_dvar_more(&var));
+        c_dvar_read(&var, "u", &value);
+        c_dvar_skip(&var, "");
+        r = c_dvar_end_read(&var);
         assert(r >= 0);
         assert(value == 7);
 
-        var = c_dvar_free(var);
+        c_dvar_deinit(&var);
 
         /* writer */
 
-        r = c_dvar_new(&var);
-        assert(!r);
+        c_dvar_init(&var);
 
-        c_dvar_begin_write(var, &t, 1);
-        c_dvar_write(var, "u", 0);
-        r = c_dvar_end_write(var, &data, &n_data);
+        c_dvar_begin_write(&var, &t, 1);
+        c_dvar_write(&var, "u", 0);
+        r = c_dvar_end_write(&var, &data, &n_data);
         assert(r >= 0);
         assert(data);
         assert(n_data);
         free(data);
 
-        var = c_dvar_free(var);
+        c_dvar_deinit(&var);
 }
 
 int main(int argc, char **argv) {

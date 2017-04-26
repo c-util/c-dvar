@@ -700,7 +700,7 @@ _public_ void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *ty
          */
         assert(data == (void *)ALIGN_TO((unsigned long)data, 8));
 
-        c_dvar_reset(var);
+        c_dvar_deinit(var);
 
         var->data = (void *)data;
         var->n_data = n_data;

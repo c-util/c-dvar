@@ -25,13 +25,7 @@ _public_ int c_dvar_new(CDVar **varp) {
         if (!var)
                 return -ENOMEM;
 
-        var->data = NULL;
-        var->n_data = 0;
-        var->n_root_type = 0;
-        var->poison = 0;
-        var->ro = false;
-        var->big_endian = !!(__BYTE_ORDER == __BIG_ENDIAN);
-        var->current = NULL;
+        c_dvar_init(var);
 
         *varp = var;
         var = NULL;
@@ -45,27 +39,16 @@ _public_ CDVar *c_dvar_free(CDVar *var) {
         if (!var)
                 return NULL;
 
-        c_dvar_reset(var);
+        c_dvar_deinit(var);
         free(var);
 
         return NULL;
 }
 
 /**
- * c_dvar_reset() - reset variant to initial state
- * @var:                variant to reset
- *
- * This resets the given variant to its initial state. Any allocated data is
- * released. All pointers to external resources are cleared and any state is
- * reset to initial values.
+ * c_dvar_init() - XXX
  */
-_public_ void c_dvar_reset(CDVar *var) {
-        if (var->current)
-                c_dvar_rewind(var);
-
-        if (!var->ro)
-                free(var->data);
-
+_public_ void c_dvar_init(CDVar *var) {
         var->data = NULL;
         var->n_data = 0;
         var->n_root_type = 0;
@@ -73,6 +56,24 @@ _public_ void c_dvar_reset(CDVar *var) {
         var->ro = false;
         var->big_endian = !!(__BYTE_ORDER == __BIG_ENDIAN);
         var->current = NULL;
+}
+
+/**
+ * c_dvar_deinit() - reset variant to initial state
+ * @var:                variant to reset
+ *
+ * This resets the given variant to its initial state. Any allocated data is
+ * released. All pointers to external resources are cleared and any state is
+ * reset to initial values.
+ */
+_public_ void c_dvar_deinit(CDVar *var) {
+        if (var->current)
+                c_dvar_rewind(var);
+
+        if (!var->ro)
+                free(var->data);
+
+        c_dvar_init(var);
 }
 
 /**

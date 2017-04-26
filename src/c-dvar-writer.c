@@ -261,7 +261,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
 _public_ void c_dvar_begin_write(CDVar *var, const CDVarType *types, size_t n_types) {
         size_t i;
 
-        c_dvar_reset(var);
+        c_dvar_deinit(var);
 
         var->current = var->levels;
         var->current->parent_types = (CDVarType *)types;

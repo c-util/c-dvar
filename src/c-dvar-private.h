@@ -23,35 +23,6 @@ typedef struct CDVarLevel CDVarLevel;
 
 #define ALIGN_TO(_val, _alignment) ((_val + (_alignment) - 1) & ~((_alignment) - 1))
 
-struct CDVarLevel {
-        CDVarType *parent_types;
-        CDVarType *i_type;
-        uint8_t n_parent_types;
-        uint8_t n_type;
-        uint8_t container : 7;
-        uint8_t allocated_parent_types : 1;
-        size_t i_buffer;
-        union {
-                /* reader */
-                size_t n_buffer;
-                /* writer */
-                size_t index;
-        };
-};
-
-struct CDVar {
-        uint8_t *data;
-        size_t n_data;
-
-        int poison;
-        uint8_t n_root_type;
-        bool ro : 1;
-        bool big_endian : 1;
-
-        CDVarLevel *current;
-        CDVarLevel levels[C_DVAR_TYPE_DEPTH_MAX + 1];
-};
-
 bool c_dvar_is_string(const char *str, size_t len);
 bool c_dvar_is_path(const char *str, size_t len);
 bool c_dvar_is_signature(const char *string, size_t n_string);

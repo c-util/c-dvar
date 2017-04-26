@@ -26,6 +26,7 @@ extern "C" {
 #include <string.h>
 
 typedef struct CDVar CDVar;
+typedef struct CDVarLevel CDVarLevel;
 typedef struct CDVarType CDVarType;
 
 /**
@@ -132,6 +133,43 @@ extern const CDVarType c_dvar_type_g[];
 extern const CDVarType c_dvar_type_v[];
 extern const CDVarType c_dvar_type_unit[];
 
+/**
+ * struct CDVarLevel - D-Bus Variant Level information
+ * XXX
+ */
+struct CDVarLevel {
+        CDVarType *parent_types;
+        CDVarType *i_type;
+        uint8_t n_parent_types;
+        uint8_t n_type;
+        uint8_t container : 7;
+        uint8_t allocated_parent_types : 1;
+        size_t i_buffer;
+        union {
+                /* reader */
+                size_t n_buffer;
+                /* writer */
+                size_t index;
+        };
+};
+
+/**
+ * struct CDVar - D-Bus Variant
+ * XXX
+ */
+struct CDVar {
+        uint8_t *data;
+        size_t n_data;
+
+        int poison;
+        uint8_t n_root_type;
+        bool ro : 1;
+        bool big_endian : 1;
+
+        CDVarLevel *current;
+        CDVarLevel levels[C_DVAR_TYPE_DEPTH_MAX + 1];
+};
+
 /* type handling */
 
 int c_dvar_type_new_from_signature(CDVarType **typep, const char *signature, size_t n_signature);
@@ -143,7 +181,8 @@ int c_dvar_type_compare_string(const CDVarType *subject, const char *object, siz
 
 int c_dvar_new(CDVar **varp);
 CDVar *c_dvar_free(CDVar *var);
-void c_dvar_reset(CDVar *var);
+void c_dvar_init(CDVar *var);
+void c_dvar_deinit(CDVar *var);
 
 bool c_dvar_is_big_endian(CDVar *var);
 int c_dvar_get_poison(CDVar *var);
@@ -214,6 +253,16 @@ static inline void c_dvar_type_freep(CDVarType **type) {
 static inline void c_dvar_freep(CDVar **var) {
         if (*var)
                 c_dvar_free(*var);
+}
+
+/**
+ * c_dvar_deinitp() - reset variant
+ * @var:                variant to reset
+ *
+ * This is the cleanup-helper for c_dvar_deinit().
+ */
+static inline void c_dvar_deinitp(CDVar *var) {
+        c_dvar_deinit(var);
 }
 
 /**

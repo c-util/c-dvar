@@ -22,7 +22,8 @@ global:
 
         c_dvar_new;
         c_dvar_free;
-        c_dvar_reset;
+        c_dvar_init;
+        c_dvar_deinit;
 
         c_dvar_is_big_endian;
         c_dvar_get_poison;
