@@ -49,13 +49,7 @@ _public_ CDVar *c_dvar_free(CDVar *var) {
  * c_dvar_init() - XXX
  */
 _public_ void c_dvar_init(CDVar *var) {
-        var->data = NULL;
-        var->n_data = 0;
-        var->n_root_type = 0;
-        var->poison = 0;
-        var->ro = false;
-        var->big_endian = !!(__BYTE_ORDER == __BIG_ENDIAN);
-        var->current = NULL;
+        *var = (CDVar)CDVAR_NULL;
 }
 
 /**

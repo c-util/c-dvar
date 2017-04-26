@@ -170,6 +170,8 @@ struct CDVar {
         CDVarLevel levels[C_DVAR_TYPE_DEPTH_MAX + 1];
 };
 
+#define CDVAR_NULL { .big_endian = !!(__BYTE_ORDER == __BIG_ENDIAN) }
+
 /* type handling */
 
 int c_dvar_type_new_from_signature(CDVarType **typep, const char *signature, size_t n_signature);

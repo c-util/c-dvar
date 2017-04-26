@@ -15,7 +15,7 @@
 
 static void test_api(void) {
         __attribute__((__cleanup__(c_dvar_type_freep))) CDVarType *type = NULL;
-        __attribute__((__cleanup__(c_dvar_deinitp))) CDVar var;
+        __attribute__((__cleanup__(c_dvar_deinitp))) CDVar var = CDVAR_NULL;
         __attribute__((__cleanup__(c_dvar_freep))) CDVar *heap_var = NULL;
         static const alignas(8) uint32_t u32 = 7;
         static const CDVarType t = {
