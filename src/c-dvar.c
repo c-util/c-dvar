@@ -16,6 +16,37 @@
 #include "c-dvar-private.h"
 
 /**
+ * c_dvar_init() - initialize variant
+ * @var:                variant to operate on
+ *
+ * This initializes a variant object that the caller allocated. This is
+ * equivalent to assigning C_DVAR_INIT to the variant.
+ */
+_public_ void c_dvar_init(CDVar *var) {
+        *var = (CDVar)C_DVAR_INIT;
+}
+
+/**
+ * c_dvar_deinit() - deinitialize variant
+ * @var:                variant to operate on
+ *
+ * This resets the given variant to its initial state. Any allocated data is
+ * released. All pointers to external resources are cleared and any state is
+ * reset to initial values.
+ *
+ * The object is left in a state equivalent to calling c_dvar_init() on it.
+ */
+_public_ void c_dvar_deinit(CDVar *var) {
+        if (var->current)
+                c_dvar_rewind(var);
+
+        if (!var->ro)
+                free(var->data);
+
+        c_dvar_init(var);
+}
+
+/**
  * c_dvar_new() - XXX
  */
 _public_ int c_dvar_new(CDVar **varp) {
@@ -43,31 +74,6 @@ _public_ CDVar *c_dvar_free(CDVar *var) {
         free(var);
 
         return NULL;
-}
-
-/**
- * c_dvar_init() - XXX
- */
-_public_ void c_dvar_init(CDVar *var) {
-        *var = (CDVar)CDVAR_NULL;
-}
-
-/**
- * c_dvar_deinit() - reset variant to initial state
- * @var:                variant to reset
- *
- * This resets the given variant to its initial state. Any allocated data is
- * released. All pointers to external resources are cleared and any state is
- * reset to initial values.
- */
-_public_ void c_dvar_deinit(CDVar *var) {
-        if (var->current)
-                c_dvar_rewind(var);
-
-        if (!var->ro)
-                free(var->data);
-
-        c_dvar_init(var);
 }
 
 /**

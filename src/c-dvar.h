@@ -18,6 +18,7 @@
 extern "C" {
 #endif
 
+#include <endian.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdarg.h>
@@ -100,6 +101,60 @@ struct CDVarType {
         uint32_t __padding : 3;
 };
 
+/**
+ * struct CDVarLevel - D-Bus Variant Level information
+ * @parent_types:               type information of the parent signature
+ * @i_type:                     current type position in parent signature
+ * @n_parent_types:             number of single complete types in @parent_types
+ * @n_type:                     remaining length after @i_type
+ * @container:                  cached parent container element
+ * @allocated_parent_types:     whether @parent_types is owned and allocated
+ * @i_buffer:                   current data position
+ * @n_buffer:                   remaining length after @i_buffer
+ * @index:                      cached container-dependent index
+ */
+struct CDVarLevel {
+        CDVarType *parent_types;
+        CDVarType *i_type;
+        uint8_t n_parent_types;
+        uint8_t n_type;
+        uint8_t container : 7;
+        uint8_t allocated_parent_types : 1;
+        size_t i_buffer;
+        union {
+                /* reader */
+                size_t n_buffer;
+                /* writer */
+                size_t index;
+        };
+};
+
+/**
+ * struct CDVar - D-Bus Variant
+ * @data:               data buffer to parse or write
+ * @n_data:             length of @data in bytes
+ * @poison:             current object poison error code, or 0
+ * @n_root_type:        cached total signature length of the root type
+ * @ro:                 object is read-only
+ * @big_endian:         data is provided as big-endian
+ * @current:            current level position
+ * @levels:             container levels
+ */
+struct CDVar {
+        uint8_t *data;
+        size_t n_data;
+
+        int poison;
+        uint8_t n_root_type;
+        bool ro : 1;
+        bool big_endian : 1;
+
+        CDVarLevel *current;
+        CDVarLevel levels[C_DVAR_TYPE_DEPTH_MAX + 1];
+};
+
+#define C_DVAR_INIT { .big_endian = !!(__BYTE_ORDER == __BIG_ENDIAN) }
+
 /* builtin */
 
 #define C_DVAR_TYPE_y (1, 0, 'y', 1, 1)
@@ -133,45 +188,6 @@ extern const CDVarType c_dvar_type_g[];
 extern const CDVarType c_dvar_type_v[];
 extern const CDVarType c_dvar_type_unit[];
 
-/**
- * struct CDVarLevel - D-Bus Variant Level information
- * XXX
- */
-struct CDVarLevel {
-        CDVarType *parent_types;
-        CDVarType *i_type;
-        uint8_t n_parent_types;
-        uint8_t n_type;
-        uint8_t container : 7;
-        uint8_t allocated_parent_types : 1;
-        size_t i_buffer;
-        union {
-                /* reader */
-                size_t n_buffer;
-                /* writer */
-                size_t index;
-        };
-};
-
-/**
- * struct CDVar - D-Bus Variant
- * XXX
- */
-struct CDVar {
-        uint8_t *data;
-        size_t n_data;
-
-        int poison;
-        uint8_t n_root_type;
-        bool ro : 1;
-        bool big_endian : 1;
-
-        CDVarLevel *current;
-        CDVarLevel levels[C_DVAR_TYPE_DEPTH_MAX + 1];
-};
-
-#define CDVAR_NULL { .big_endian = !!(__BYTE_ORDER == __BIG_ENDIAN) }
-
 /* type handling */
 
 int c_dvar_type_new_from_signature(CDVarType **typep, const char *signature, size_t n_signature);
@@ -201,6 +217,8 @@ int c_dvar_end_read(CDVar *var);
 void c_dvar_begin_write(CDVar *var, const CDVarType *types, size_t n_types);
 int c_dvar_vwrite(CDVar *var, const char *format, va_list args);
 int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap);
+
+/* inline helpers */
 
 /**
  * c_dvar_type_new_from_string() - allocate new type information from string
