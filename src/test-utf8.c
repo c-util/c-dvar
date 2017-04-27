@@ -74,8 +74,8 @@ static void test_utf8(void) {
                         assert(p == str + sizeof(str) && len == 0);
         }
 
-        /* verify every 3-byte character */
-        for (uint32_t i = 0; i <= 0xFFFFFF; i++) {
+        /* verify every 0xF'th 3-byte character */
+        for (uint32_t i = 0; i <= 0xFFFFFF; i += 0xF) {
                 char str[] = { (i >> 16), (i >> 8) & 0xFF, i & 0xFF };
                 size_t len = sizeof(str);
                 const char *p = str;
@@ -100,8 +100,8 @@ static void test_utf8(void) {
                         assert(p == str + sizeof(str) && len == 0);
         }
 
-        /* verify every 4-byte character */
-        for (uint64_t i = 0; i <= 0xFFFFFFFF; i += 64) {
+        /* verify every 0xFFF'th 4-byte character */
+        for (uint64_t i = 0; i <= 0xFFFFFFFF; i += 0xFFF) {
                 char str[] = { (i >> 24), (i >> 16) & 0xFF, (i >> 8) & 0xFF, i & 0xFF };
                 size_t len = sizeof(str);
                 const char *p = str;
