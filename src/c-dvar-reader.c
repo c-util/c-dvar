@@ -607,7 +607,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
         return 0;
 
 error:
-        c_dvar_dummy_vread(var, format, args);
+        c_dvar_dummy_vread(var, format - 1, args);
         return r;
 }
 
