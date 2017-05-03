@@ -50,7 +50,7 @@ static void test_enumerated_types(void) {
 
                 do {
                         c = dbus_typenum_step(e);
-                        if (pos - str >= n_str) {
+                        if (pos - str >= (ssize_t)n_str) {
                                 str = realloc(str, (pos - str) * 2);
                                 assert(str);
                                 pos = str + n_str;
