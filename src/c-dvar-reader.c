@@ -730,7 +730,7 @@ _public_ void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *ty
  * c_dvar_more() - XXX
  */
 _public_ bool c_dvar_more(CDVar *var) {
-        return var->ro && var->current && var->current->n_buffer;
+        return !var->poison && var->ro && var->current && var->current->n_buffer;
 }
 
 /**
