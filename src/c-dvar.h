@@ -281,8 +281,9 @@ static inline void c_dvar_freep(CDVar **var) {
  *
  * This is the cleanup-helper for c_dvar_deinit().
  */
-static inline void c_dvar_deinitp(CDVar *var) {
-        c_dvar_deinit(var);
+static inline void c_dvar_deinitp(CDVar **var) {
+        if (*var)
+                c_dvar_deinit(*var);
 }
 
 /**
