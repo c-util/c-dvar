@@ -38,7 +38,10 @@ libcdvar_dep = declare_dependency(
 )
 
 if not meson.is_subproject()
-        install_headers('c-dvar.h')
+        install_headers(
+                'c-dvar.h',
+                'c-dvar-type.h',
+        )
 
         mod_pkgconfig.generate(
                 libraries: libcdvar_shared,
