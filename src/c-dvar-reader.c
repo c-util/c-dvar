@@ -224,7 +224,7 @@ static uint32_t c_dvar_bswap32(CDVar *var, uint32_t v) {
         return _likely_(!!var->big_endian == !!(__BYTE_ORDER == __BIG_ENDIAN)) ? v : bswap_32(v);
 }
 
-static uint32_t c_dvar_bswap64(CDVar *var, uint64_t v) {
+static uint64_t c_dvar_bswap64(CDVar *var, uint64_t v) {
         return _likely_(!!var->big_endian == !!(__BYTE_ORDER == __BIG_ENDIAN)) ? v : bswap_64(v);
 }
 
