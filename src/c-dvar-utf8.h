@@ -7,6 +7,9 @@
 #include "c-dvar-private.h"
 
 #define C_DVAR_CHAR_IS_UTF8_TAIL(_x)    (((_x) & 0xC0) == 0x80)
+/* The following constants are truncated on 32-bit machines */
+#define C_DVAR_UTF8_ASCII_MASK ((size_t)UINT64_C(0x8080808080808080))
+#define C_DVAR_UTF8_ASCII_SUB ((size_t)UINT64_C(0x0101010101010101))
 
 /**
  * c_dvar_utf8_verify() - verify that a string is UTF-8 encoded
@@ -27,10 +30,43 @@ static inline void c_dvar_utf8_verify(const char **strp, size_t *lenp) {
 
         while (len > 0) {
                 if (*str < 128) {
-                        if (_unlikely_(*str == 0x00))
-                                goto out;
-                        ++str;
-                        --len;
+                        /*
+                         * Special-case and optimize the ASCII case.
+                         */
+                        if ((void*)ALIGN_TO((unsigned long)str, sizeof(size_t)) == str) {
+                                /*
+                                 * If the string is aligned to a word boundary, scan one word
+                                 * at a time for any NULL or non-ASCII characters.
+                                 */
+                                while (len >= sizeof(size_t)) {
+                                        /* break if any byte is NULL or has the MSB set */
+                                        if ((((*(size_t*)str - C_DVAR_UTF8_ASCII_SUB) | *(size_t*)str) & C_DVAR_UTF8_ASCII_MASK) != 0)
+                                                break;
+
+                                        str += sizeof(size_t);
+                                        len -= sizeof(size_t);
+                                }
+
+
+                                /*
+                                 * Find the actual end of the ASCII-portion of the string.
+                                 */
+                                while (len > 0 && *str < 128) {
+                                        if (_unlikely_(*str == 0x00))
+                                                goto out;
+                                        ++str;
+                                        --len;
+                                }
+                        } else {
+                                /*
+                                 * The string was not aligned, scan one character at a time until
+                                 * it is.
+                                 */
+                                if (_unlikely_(*str == 0x00))
+                                        goto out;
+                                ++str;
+                                --len;
+                        }
                 } else {
                         switch (*str) {
                         case 0xC2 ... 0xDF:
