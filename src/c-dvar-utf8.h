@@ -6,8 +6,10 @@
 
 #include "c-dvar-private.h"
 
+#define C_DVAR_CHAR_IS_UTF8_TAIL(_x)    (((_x) & 0xC0) == 0x80)
+
 /**
- * c_dvar_utf8_verify() - verify that a scring is UTF-8 encoded
+ * c_dvar_utf8_verify() - verify that a string is UTF-8 encoded
  * @strp:               pointer to string to verify
  * @lenp:               pointer to length of string
  *
@@ -21,104 +23,123 @@ static inline void c_dvar_utf8_verify(const char **strp, size_t *lenp) {
         unsigned char *str = (unsigned char *)*strp;
         size_t len = *lenp;
 
-        /* See Unicode 9.0.0, Chapter 3, Section D92 */
+        /* See Unicode 10.0.0, Chapter 3, Section D92 */
 
         while (len > 0) {
-                if (_unlikely_(*str == 0x00)) {
-                        break;
-                } else if (*str < 0x80) {
+                if (*str < 128) {
+                        if (_unlikely_(*str == 0x00))
+                                goto out;
                         ++str;
                         --len;
-                } else if (_unlikely_(*str < 0xC2)) {
-                        break;
-                } else if (*str < 0xE0) {
-                        if (_unlikely_(len < 2))
-                                break;
-                        if (_unlikely_(*(str + 1) < 0x80 || *(str + 1) > 0xBF))
-                                break;
+                } else {
+                        switch (*str) {
+                        case 0xC2 ... 0xDF:
+                                if (_unlikely_(len < 2))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 1))))
+                                        goto out;
 
-                        str += 2;
-                        len -= 2;
-                } else if (*str < 0xE1) {
-                        if (_unlikely_(len < 3))
-                                break;
-                        if (_unlikely_(*(str + 1) < 0xA0 || *(str + 1) > 0xBF))
-                                break;
-                        if (_unlikely_(*(str + 2) < 0x80 || *(str + 2) > 0xBF))
-                                break;
+                                str += 2;
+                                len -= 2;
 
-                        str += 3;
-                        len -= 3;
-                } else if (*str < 0xED) {
-                        if (_unlikely_(len < 3))
                                 break;
-                        if (_unlikely_(*(str + 1) < 0x80 || *(str + 1) > 0xBF))
-                                break;
-                        if (_unlikely_(*(str + 2) < 0x80 || *(str + 2) > 0xBF))
-                                break;
+                        case 0xE0:
+                                if (_unlikely_(len < 3))
+                                        goto out;
+                                if (_unlikely_(*(str + 1) < 0xA0 || *(str + 1) > 0xBF))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 2))))
+                                        goto out;
 
-                        str += 3;
-                        len -= 3;
-                } else if (*str < 0xEE) {
-                        if (_unlikely_(len < 3))
-                                break;
-                        if (_unlikely_(*(str + 1) < 0x80 || *(str + 1) > 0x9F))
-                                break;
-                        if (_unlikely_(*(str + 2) < 0x80 || *(str + 2) > 0xBF))
-                                break;
+                                str += 3;
+                                len -= 3;
 
-                        str += 3;
-                        len -= 3;
-                } else if (*str < 0xF0) {
-                        if (_unlikely_(len < 3))
                                 break;
-                        if (_unlikely_(*(str + 1) < 0x80 || *(str + 1) > 0xBF))
-                                break;
-                        if (_unlikely_(*(str + 2) < 0x80 || *(str + 2) > 0xBF))
-                                break;
+                        case 0xE1 ... 0xEC:
+                                if (_unlikely_(len < 3))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 1))))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 2))))
+                                        goto out;
 
-                        str += 3;
-                        len -= 3;
-                } else if (*str < 0xF1) {
-                        if (_unlikely_(len < 4))
-                                break;
-                        if (_unlikely_(*(str + 1) < 0x90 || *(str + 1) > 0xBF))
-                                break;
-                        if (_unlikely_(*(str + 2) < 0x80 || *(str + 2) > 0xBF))
-                                break;
-                        if (_unlikely_(*(str + 3) < 0x80 || *(str + 3) > 0xBF))
-                                break;
+                                str += 3;
+                                len -= 3;
 
-                        str += 4;
-                        len -= 4;
-                } else if (*str < 0xF4) {
-                        if (_unlikely_(len < 4))
                                 break;
-                        if (_unlikely_(*(str + 1) < 0x80 || *(str + 1) > 0xBF))
-                                break;
-                        if (_unlikely_(*(str + 2) < 0x80 || *(str + 2) > 0xBF))
-                                break;
-                        if (_unlikely_(*(str + 3) < 0x80 || *(str + 3) > 0xBF))
-                                break;
+                        case 0xED:
+                                if (_unlikely_(len < 3))
+                                        goto out;
+                                if (_unlikely_(*(str + 1) < 0x80 || *(str + 1) > 0x9F))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 2))))
+                                        goto out;
 
-                        str += 4;
-                        len -= 4;
-                } else if (*str < 0xF5) {
-                        if (_unlikely_(len < 4))
-                                break;
-                        if (_unlikely_(*(str + 1) < 0x80 || *(str + 1) > 0x8F))
-                                break;
-                        if (_unlikely_(*(str + 2) < 0x80 || *(str + 2) > 0xBF))
-                                break;
-                        if (_unlikely_(*(str + 3) < 0x80 || *(str + 3) > 0xBF))
-                                break;
+                                str += 3;
+                                len -= 3;
 
-                        str += 4;
-                        len -= 4;
-                } else
-                        break;
+                                break;
+                        case 0xEE ... 0xEF:
+                                if (_unlikely_(len < 3))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 1))))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 2))))
+                                        goto out;
+
+                                str += 3;
+                                len -= 3;
+
+                                break;
+                        case 0xF0:
+                                if (_unlikely_(len < 4))
+                                        goto out;
+                                if (_unlikely_(*(str + 1) < 0x90 || *(str + 1) > 0xBF))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 2))))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 3))))
+                                        goto out;
+
+                                str += 4;
+                                len -= 4;
+
+                                break;
+                        case 0xF1 ... 0xF3:
+                                if (_unlikely_(len < 4))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 1))))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 2))))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 3))))
+                                        goto out;
+
+                                str += 4;
+                                len -= 4;
+
+                                break;
+                        case 0xF4:
+                                if (_unlikely_(len < 4))
+                                        goto out;
+                                if (_unlikely_(*(str + 1) < 0x80 || *(str + 1) > 0x8F))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 2))))
+                                        goto out;
+                                if (_unlikely_(!C_DVAR_CHAR_IS_UTF8_TAIL(*(str + 3))))
+                                        goto out;
+
+                                str += 4;
+                                len -= 4;
+
+                                break;
+                        default:
+                                goto out;
+                        }
+                }
         }
 
+out:
         *strp = (char *)str;
         *lenp = len;
 }
