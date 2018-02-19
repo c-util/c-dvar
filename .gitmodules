@@ -1,0 +1,3 @@
+[submodule "subprojects/c-utf8"]
+	path = subprojects/c-utf8
+	url = https://github.com/c-util/c-utf8.git
