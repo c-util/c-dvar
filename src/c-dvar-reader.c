@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <c-utf8.h>
 #include <byteswap.h>
 #include <endian.h>
 #include <errno.h>
@@ -15,10 +16,9 @@
 #include <string.h>
 #include "c-dvar.h"
 #include "c-dvar-private.h"
-#include "c-dvar-utf8.h"
 
 bool c_dvar_is_string(const char *str, size_t len) {
-        c_dvar_utf8_verify(&str, &len);
+        c_utf8_verify(&str, &len);
 
         return (*str == '\0' && len == 0);
 }

@@ -16,11 +16,13 @@ libcdvar_private = static_library(
                 '-fvisibility=hidden',
                 '-fno-common',
         ],
+        dependencies: libcutf8_dep,
         pic: true,
 )
 
 libcdvar_shared = shared_library(
         'cdvar',
+        dependencies: libcutf8_dep,
         objects: libcdvar_private.extract_all_objects(),
         install: not meson.is_subproject(),
         soversion: 0,
@@ -72,6 +74,3 @@ test('D-Bus String Restrictions', test_string)
 
 test_type = executable('test-type', ['test-type.c'], dependencies: libcdvar_dep)
 test('Type and Signature Parser', test_type)
-
-test_utf8 = executable('test-utf8', ['test-utf8.c'])
-test('UTF-8 Validation', test_utf8)
