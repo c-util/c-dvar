@@ -93,6 +93,8 @@ static void test_api(void) {
         assert(r >= 0);
         assert(value == 7);
 
+        assert(c_dvar_is_path("/", strlen("/")));
+
         c_dvar_deinit(&var);
 
         /* writer */

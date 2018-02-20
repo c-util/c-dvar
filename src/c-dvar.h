@@ -214,6 +214,8 @@ int c_dvar_vread(CDVar *var, const char *format, va_list args);
 int c_dvar_vskip(CDVar *var, const char *format, va_list args);
 int c_dvar_end_read(CDVar *var);
 
+bool c_dvar_is_path(const char *string, size_t n_string);
+
 void c_dvar_begin_write(CDVar *var, const CDVarType *types, size_t n_types);
 int c_dvar_vwrite(CDVar *var, const char *format, va_list args);
 int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap);

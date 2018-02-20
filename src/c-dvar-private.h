@@ -23,8 +23,7 @@ typedef struct CDVarLevel CDVarLevel;
 
 #define ALIGN_TO(_val, _alignment) ((_val + (_alignment) - 1) & ~((_alignment) - 1))
 
-bool c_dvar_is_string(const char *str, size_t len);
-bool c_dvar_is_path(const char *str, size_t len);
+bool c_dvar_is_string(const char *string, size_t n_string);
 bool c_dvar_is_signature(const char *string, size_t n_string);
 bool c_dvar_is_type(const char *string, size_t n_string);
 

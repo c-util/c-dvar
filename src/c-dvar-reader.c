@@ -17,181 +17,6 @@
 #include "c-dvar.h"
 #include "c-dvar-private.h"
 
-bool c_dvar_is_string(const char *str, size_t len) {
-        c_utf8_verify(&str, &len);
-
-        return (*str == '\0' && len == 0);
-}
-
-bool c_dvar_is_path(const char *str, size_t len) {
-        bool slash = true;
-        size_t i;
-
-        if (_unlikely_(len == 0 || *str != '/'))
-                return false;
-
-        for (i = 1; i < len; ++i) {
-                if (str[i] == '/') {
-                        if (_unlikely_(slash))
-                                return false;
-
-                        slash = true;
-                } else if (_unlikely_(!((str[i] >= 'A' && str[i] <= 'Z') ||
-                                        (str[i] >= 'a' && str[i] <= 'z') ||
-                                        (str[i] >= '0' && str[i] <= '9') ||
-                                        (str[i] == '_')))) {
-                        return false;
-                } else {
-                        slash = false;
-                }
-        }
-
-        return !slash || len == 1;
-}
-
-static const char *c_dvar_verify_type(const char *string, size_t n_string) {
-        size_t i, depth = 0, n_tuple = 0;
-        uint64_t tuples = 0, arrays = 0;
-        char c, container = 0;
-
-        static_assert(C_DVAR_TYPE_DEPTH_MAX <= 64, "Invalid maximum type depth");
-
-        for (i = 0; i < n_string; ++i) {
-                c = string[i];
-
-                if (i >= 255)
-                        return NULL;
-
-                if (container == '{') {
-                        if (string[i - 1] == '{') {
-                                /* first type must be basic */
-                                if (_unlikely_(!(c == 'y' || c == 'b' || c == 'n' || c == 'q' ||
-                                                 c == 'i' || c == 'u' || c == 'x' || c == 't' ||
-                                                 c == 'h' || c == 'd' || c == 's' || c == 'o' ||
-                                                 c == 'g')))
-                                        return NULL;
-                        } else if (string[i - 2] == '{') {
-                                /* there must be a second type */
-                                if (_unlikely_(c == '}'))
-                                        return NULL;
-                        } else {
-                                /* DICT is closed after second type */
-                                if (_unlikely_(c != '}'))
-                                        return NULL;
-                        }
-                }
-
-                switch (c) {
-                case '{':
-                        /* dicts are not allowed outside arrays */
-                        if (container != 'a')
-                                return NULL;
-
-                        /* fallthrough */
-                case '(':
-                        ++n_tuple;
-
-                        /* fallthrough */
-                case 'a':
-                        ++depth;
-                        if (_unlikely_(depth > C_DVAR_TYPE_DEPTH_MAX ||
-                                       n_tuple > C_DVAR_TYPE_DEPTH_MAX / 2 ||
-                                       depth - n_tuple > C_DVAR_TYPE_DEPTH_MAX / 2))
-                                return NULL;
-
-                        if (c == '{')
-                                tuples |= UINT64_C(1) << (depth - 1);
-                        else if (c == 'a')
-                                arrays |= UINT64_C(1) << (depth - 1);
-
-                        container = c;
-                        continue;
-
-                case '}':
-                case ')':
-                        /* closing braces must match opening ones */
-                        if (_unlikely_(container != ((c == '}') ? '{' : '(')))
-                                return NULL;
-                        /* empty structs are not allowed */
-                        if (_unlikely_(string[i - 1] == '('))
-                                return NULL;
-
-                        --n_tuple;
-                        tuples &= ~(UINT64_C(1) << --depth);
-
-                        if (depth == 0)
-                                container = 0;
-                        else if (arrays & (UINT64_C(1) << (depth - 1)))
-                                container = 'a';
-                        else if (tuples & (UINT64_C(1) << (depth - 1)))
-                                container = '{';
-                        else
-                                container = '(';
-
-                        break;
-
-                case 'y':
-                case 'b':
-                case 'n':
-                case 'q':
-                case 'i':
-                case 'u':
-                case 'x':
-                case 't':
-                case 'h':
-                case 'd':
-                case 's':
-                case 'o':
-                case 'g':
-                case 'v':
-                        break;
-
-                default:
-                        return NULL;
-                }
-
-                while (container == 'a') {
-                        arrays &= ~(UINT64_C(1) << --depth);
-
-                        if (depth == 0)
-                                container = 0;
-                        else if (arrays & (UINT64_C(1) << (depth - 1)))
-                                container = 'a';
-                        else if (tuples & (UINT64_C(1) << (depth - 1)))
-                                container = '{';
-                        else
-                                container = '(';
-                }
-
-                if (!container)
-                        return string + i + 1;
-        }
-
-        return NULL;
-}
-
-bool c_dvar_is_signature(const char *string, size_t n_string) {
-        const char *next;
-
-        if (_unlikely_(n_string > 255))
-                return false;
-
-        while (n_string) {
-                next = c_dvar_verify_type(string, n_string);
-                if (!next)
-                        return false;
-
-                n_string -= next - string;
-                string = next;
-        }
-
-        return true;
-}
-
-bool c_dvar_is_type(const char *string, size_t n_string) {
-        return string + n_string == c_dvar_verify_type(string, n_string);
-}
-
 static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_t n_data) {
         size_t i, align;
 
@@ -828,4 +653,182 @@ _public_ int c_dvar_end_read(CDVar *var) {
         var->current->n_buffer = var->n_data;
 
         return r;
+}
+
+/**
+ * c_dvar_is_path() - XXX
+ */
+_public_ bool c_dvar_is_path(const char *str, size_t len) {
+        bool slash = true;
+        size_t i;
+
+        if (_unlikely_(len == 0 || *str != '/'))
+                return false;
+
+        for (i = 1; i < len; ++i) {
+                if (str[i] == '/') {
+                        if (_unlikely_(slash))
+                                return false;
+
+                        slash = true;
+                } else if (_unlikely_(!((str[i] >= 'A' && str[i] <= 'Z') ||
+                                        (str[i] >= 'a' && str[i] <= 'z') ||
+                                        (str[i] >= '0' && str[i] <= '9') ||
+                                        (str[i] == '_')))) {
+                        return false;
+                } else {
+                        slash = false;
+                }
+        }
+
+        return !slash || len == 1;
+}
+
+bool c_dvar_is_string(const char *str, size_t len) {
+        c_utf8_verify(&str, &len);
+
+        return (*str == '\0' && len == 0);
+}
+
+static const char *c_dvar_verify_type(const char *string, size_t n_string) {
+        size_t i, depth = 0, n_tuple = 0;
+        uint64_t tuples = 0, arrays = 0;
+        char c, container = 0;
+
+        static_assert(C_DVAR_TYPE_DEPTH_MAX <= 64, "Invalid maximum type depth");
+
+        for (i = 0; i < n_string; ++i) {
+                c = string[i];
+
+                if (i >= 255)
+                        return NULL;
+
+                if (container == '{') {
+                        if (string[i - 1] == '{') {
+                                /* first type must be basic */
+                                if (_unlikely_(!(c == 'y' || c == 'b' || c == 'n' || c == 'q' ||
+                                                 c == 'i' || c == 'u' || c == 'x' || c == 't' ||
+                                                 c == 'h' || c == 'd' || c == 's' || c == 'o' ||
+                                                 c == 'g')))
+                                        return NULL;
+                        } else if (string[i - 2] == '{') {
+                                /* there must be a second type */
+                                if (_unlikely_(c == '}'))
+                                        return NULL;
+                        } else {
+                                /* DICT is closed after second type */
+                                if (_unlikely_(c != '}'))
+                                        return NULL;
+                        }
+                }
+
+                switch (c) {
+                case '{':
+                        /* dicts are not allowed outside arrays */
+                        if (container != 'a')
+                                return NULL;
+
+                        /* fallthrough */
+                case '(':
+                        ++n_tuple;
+
+                        /* fallthrough */
+                case 'a':
+                        ++depth;
+                        if (_unlikely_(depth > C_DVAR_TYPE_DEPTH_MAX ||
+                                       n_tuple > C_DVAR_TYPE_DEPTH_MAX / 2 ||
+                                       depth - n_tuple > C_DVAR_TYPE_DEPTH_MAX / 2))
+                                return NULL;
+
+                        if (c == '{')
+                                tuples |= UINT64_C(1) << (depth - 1);
+                        else if (c == 'a')
+                                arrays |= UINT64_C(1) << (depth - 1);
+
+                        container = c;
+                        continue;
+
+                case '}':
+                case ')':
+                        /* closing braces must match opening ones */
+                        if (_unlikely_(container != ((c == '}') ? '{' : '(')))
+                                return NULL;
+                        /* empty structs are not allowed */
+                        if (_unlikely_(string[i - 1] == '('))
+                                return NULL;
+
+                        --n_tuple;
+                        tuples &= ~(UINT64_C(1) << --depth);
+
+                        if (depth == 0)
+                                container = 0;
+                        else if (arrays & (UINT64_C(1) << (depth - 1)))
+                                container = 'a';
+                        else if (tuples & (UINT64_C(1) << (depth - 1)))
+                                container = '{';
+                        else
+                                container = '(';
+
+                        break;
+
+                case 'y':
+                case 'b':
+                case 'n':
+                case 'q':
+                case 'i':
+                case 'u':
+                case 'x':
+                case 't':
+                case 'h':
+                case 'd':
+                case 's':
+                case 'o':
+                case 'g':
+                case 'v':
+                        break;
+
+                default:
+                        return NULL;
+                }
+
+                while (container == 'a') {
+                        arrays &= ~(UINT64_C(1) << --depth);
+
+                        if (depth == 0)
+                                container = 0;
+                        else if (arrays & (UINT64_C(1) << (depth - 1)))
+                                container = 'a';
+                        else if (tuples & (UINT64_C(1) << (depth - 1)))
+                                container = '{';
+                        else
+                                container = '(';
+                }
+
+                if (!container)
+                        return string + i + 1;
+        }
+
+        return NULL;
+}
+
+bool c_dvar_is_signature(const char *string, size_t n_string) {
+        const char *next;
+
+        if (_unlikely_(n_string > 255))
+                return false;
+
+        while (n_string) {
+                next = c_dvar_verify_type(string, n_string);
+                if (!next)
+                        return false;
+
+                n_string -= next - string;
+                string = next;
+        }
+
+        return true;
+}
+
+bool c_dvar_is_type(const char *string, size_t n_string) {
+        return string + n_string == c_dvar_verify_type(string, n_string);
 }
