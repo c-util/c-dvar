@@ -216,7 +216,7 @@ static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_
         return 0;
 }
 
-static uint32_t c_dvar_bswap16(CDVar *var, uint16_t v) {
+static uint16_t c_dvar_bswap16(CDVar *var, uint16_t v) {
         return _likely_(!!var->big_endian == !!(__BYTE_ORDER == __BIG_ENDIAN)) ? v : bswap_16(v);
 }
 
