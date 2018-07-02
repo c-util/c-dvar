@@ -41,18 +41,6 @@ static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_
         return 0;
 }
 
-static uint16_t c_dvar_bswap16(CDVar *var, uint16_t v) {
-        return _likely_(!!var->big_endian == !!(__BYTE_ORDER == __BIG_ENDIAN)) ? v : bswap_16(v);
-}
-
-static uint32_t c_dvar_bswap32(CDVar *var, uint32_t v) {
-        return _likely_(!!var->big_endian == !!(__BYTE_ORDER == __BIG_ENDIAN)) ? v : bswap_32(v);
-}
-
-static uint64_t c_dvar_bswap64(CDVar *var, uint64_t v) {
-        return _likely_(!!var->big_endian == !!(__BYTE_ORDER == __BIG_ENDIAN)) ? v : bswap_64(v);
-}
-
 static int c_dvar_read_u8(CDVar *var, uint8_t *datap) {
         const void *p;
         int r;

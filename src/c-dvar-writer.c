@@ -54,14 +54,17 @@ static int c_dvar_write_u8(CDVar *var, uint8_t v) {
 }
 
 static int c_dvar_write_u16(CDVar *var, uint16_t v) {
+        v = c_dvar_bswap16(var, v);
         return c_dvar_write_data(var, 1, &v, sizeof(v));
 }
 
 static int c_dvar_write_u32(CDVar *var, uint32_t v) {
+        v = c_dvar_bswap32(var, v);
         return c_dvar_write_data(var, 2, &v, sizeof(v));
 }
 
 static int c_dvar_write_u64(CDVar *var, uint64_t v) {
+        v = c_dvar_bswap64(var, v);
         return c_dvar_write_data(var, 3, &v, sizeof(v));
 }
 
@@ -133,9 +136,10 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                         continue; /* do not advance type iterator */
 
                 case ']':
+                        /* compute array size */
+                        u32 = c_dvar_bswap32(var, var->current->i_buffer - (var->current - 1)->i_buffer);
                         /* write previously written placeholder */
-                        *(uint32_t *)&var->data[(var->current - 1)->index] =
-                                var->current->i_buffer - (var->current - 1)->i_buffer;
+                        *(uint32_t *)&var->data[(var->current - 1)->index] = u32;
 
                         c_dvar_pop(var);
                         break;
@@ -191,12 +195,16 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                         break;
 
                 case 'd':
+                        /*
+                         * va_arg(double) may use floating point registers,
+                         * so must be handled separately.
+                         */
                         fp = va_arg(args, double);
 
                         static_assert(sizeof(double) == sizeof(uint64_t),
                                       "Unsupported size of 'double'");
 
-                        r = c_dvar_write_data(var, 3, &fp, sizeof(fp));
+                        r = c_dvar_write_u64(var, *(uint64_t*)&fp);
                         if (r)
                                 return r;
 
@@ -258,10 +266,12 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
 /**
  * c_dvar_begin_write() - XXX
  */
-_public_ void c_dvar_begin_write(CDVar *var, const CDVarType *types, size_t n_types) {
+_public_ void c_dvar_begin_write(CDVar *var, bool big_endian, const CDVarType *types, size_t n_types) {
         size_t i;
 
         c_dvar_deinit(var);
+
+        var->big_endian = big_endian;
 
         var->current = var->levels;
         var->current->parent_types = (CDVarType *)types;

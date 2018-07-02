@@ -101,7 +101,7 @@ static void test_api(void) {
 
         c_dvar_init(&var);
 
-        c_dvar_begin_write(&var, &t, 1);
+        c_dvar_begin_write(&var, (__BYTE_ORDER == __BIG_ENDIAN), &t, 1);
         c_dvar_write(&var, "u", 0);
         r = c_dvar_end_write(&var, &data, &n_data);
         assert(r >= 0);
