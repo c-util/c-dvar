@@ -8,6 +8,7 @@ libcdvar_private = static_library(
         'cdvar-private',
         [
                 'c-dvar.c',
+                'c-dvar-common.c',
                 'c-dvar-reader.c',
                 'c-dvar-type.c',
                 'c-dvar-writer.c',
