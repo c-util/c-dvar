@@ -4,6 +4,10 @@
 
 libcdvar_symfile = join_paths(meson.current_source_dir(), 'libcdvar.sym')
 
+libcdvar_deps = [
+        libcutf8_dep,
+]
+
 libcdvar_private = static_library(
         'cdvar-private',
         [
@@ -17,14 +21,14 @@ libcdvar_private = static_library(
                 '-fvisibility=hidden',
                 '-fno-common',
         ],
-        dependencies: libcutf8_dep,
+        dependencies: libcdvar_deps,
         pic: true,
 )
 
 libcdvar_shared = shared_library(
         'cdvar',
-        dependencies: libcutf8_dep,
         objects: libcdvar_private.extract_all_objects(),
+        dependencies: libcdvar_deps,
         install: not meson.is_subproject(),
         soversion: 0,
         link_depends: libcdvar_symfile,
@@ -37,6 +41,7 @@ libcdvar_shared = shared_library(
 libcdvar_dep = declare_dependency(
         include_directories: include_directories('.'),
         link_with: libcdvar_private,
+        dependencies: libcdvar_deps,
         version: meson.project_version(),
 )
 
@@ -51,7 +56,7 @@ if not meson.is_subproject()
                 version: meson.project_version(),
                 name: 'libcdvar',
                 filebase: 'libcdvar',
-                description: 'D-Bus Variant Type-System',
+                description: project_description,
         )
 endif
 

@@ -7,6 +7,7 @@ project(
                 'c_std=c11',
         ],
 )
+project_description = 'D-Bus Variant Type-System'
 
 add_project_arguments('-D_GNU_SOURCE', language: 'c')
 mod_pkgconfig = import('pkgconfig')
