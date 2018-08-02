@@ -197,14 +197,16 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                 case 'd':
                         /*
                          * va_arg(double) may use floating point registers,
-                         * so must be handled separately.
+                         * so must be explicitly retrieved as double. We then
+                         * copy into u64 to avoid aliasing restrictions.
                          */
                         fp = va_arg(args, double);
+                        memcpy(&u64, &fp, sizeof(fp));
 
                         static_assert(sizeof(double) == sizeof(uint64_t),
                                       "Unsupported size of 'double'");
 
-                        r = c_dvar_write_u64(var, *(uint64_t*)&fp);
+                        r = c_dvar_write_u64(var, u64);
                         if (r)
                                 return r;
 
