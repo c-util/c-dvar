@@ -1,19 +1,21 @@
-dist: trusty
 os: linux
+dist: trusty
 language: c
-compiler:
-  - gcc
-  - clang
 
-install:
-  - curl -L "https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip" -o "ninja-linux.zip"
-  - mkdir -p "$HOME/.local/bin"
-  - unzip "ninja-linux.zip" -d "$HOME/.local/bin"
-  - chmod 755 "$HOME/.local/bin/ninja"
-  - pip3 install meson
+services:
+  - docker
 
-script:
-  - export PATH="$HOME/.local/bin:$PATH"
-  - meson "build"
-  - ninja -C "build"
-  - ninja -C "build" test
+before_install:
+  - curl -O -L "https://raw.githubusercontent.com/cherry-pick/cherry-images/v1/scripts/vmrun"
+  - curl -O -L "https://raw.githubusercontent.com/cherry-pick/cherry-ci/v1/scripts/cherryci"
+  - chmod +x "./vmrun" "./cherryci"
+
+jobs:
+  include:
+    - stage: test
+      script:
+        - ./vmrun -- ../src/cherryci -d ../src/.cherryci -s c-util -m
+    - script:
+        - ./vmrun -T armv7hl -- ../src/cherryci -d ../src/.cherryci -s c-util
+    - script:
+        - ./vmrun -T i686 -- ../src/cherryci -d ../src/.cherryci -s c-util
