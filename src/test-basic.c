@@ -80,7 +80,7 @@ static void test_basic_serialization(bool big_endian) {
         assert(u16 == 7);
         assert(!strcmp(str2, "bar"));
         assert(u64 == 7);
-        assert(d == 7.0);
+        assert(d > 6.0 && d < 8.0);
 
         r = c_dvar_end_read(var);
         assert(!r);
