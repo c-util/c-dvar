@@ -2,7 +2,9 @@
  * Tests for String Validity
  */
 
+#undef NDEBUG
 #include <assert.h>
+#include <c-stdaux.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,15 +32,15 @@ static void test_path(void) {
         size_t i;
 
         for (i = 0; i < sizeof(valid) / sizeof(*valid); ++i)
-                assert(c_dvar_is_path(valid[i], strlen(valid[i])));
+                c_assert(c_dvar_is_path(valid[i], strlen(valid[i])));
 
         for (i = 0; i < sizeof(invalid) / sizeof(*invalid); ++i)
-                assert(!c_dvar_is_path(invalid[i], strlen(invalid[i])));
+                c_assert(!c_dvar_is_path(invalid[i], strlen(invalid[i])));
 
-        assert(!c_dvar_is_path("\0/", 2));
-        assert(!c_dvar_is_path("/\0", 2));
-        assert(!c_dvar_is_path("/foobar\0", 8));
-        assert(!c_dvar_is_path("/\0foobar", 8));
+        c_assert(!c_dvar_is_path("\0/", 2));
+        c_assert(!c_dvar_is_path("/\0", 2));
+        c_assert(!c_dvar_is_path("/foobar\0", 8));
+        c_assert(!c_dvar_is_path("/\0foobar", 8));
 }
 
 static void test_signature(void) {
@@ -61,15 +63,15 @@ static void test_signature(void) {
         size_t i;
 
         for (i = 0; i < sizeof(valid) / sizeof(*valid); ++i)
-                assert(c_dvar_is_signature(valid[i], strlen(valid[i])));
+                c_assert(c_dvar_is_signature(valid[i], strlen(valid[i])));
 
         for (i = 0; i < sizeof(invalid) / sizeof(*invalid); ++i)
-                assert(!c_dvar_is_signature(invalid[i], strlen(invalid[i])));
+                c_assert(!c_dvar_is_signature(invalid[i], strlen(invalid[i])));
 
-        assert(!c_dvar_is_signature("\0u", 2));
-        assert(!c_dvar_is_signature("u\0", 2));
-        assert(!c_dvar_is_signature("(u\0)", 4));
-        assert(!c_dvar_is_signature("(u\0u)", 5));
+        c_assert(!c_dvar_is_signature("\0u", 2));
+        c_assert(!c_dvar_is_signature("u\0", 2));
+        c_assert(!c_dvar_is_signature("(u\0)", 4));
+        c_assert(!c_dvar_is_signature("(u\0u)", 5));
 }
 
 static void test_type(void) {
@@ -118,15 +120,15 @@ static void test_type(void) {
         size_t i;
 
         for (i = 0; i < sizeof(valid) / sizeof(*valid); ++i)
-                assert(c_dvar_is_type(valid[i], strlen(valid[i])));
+                c_assert(c_dvar_is_type(valid[i], strlen(valid[i])));
 
         for (i = 0; i < sizeof(invalid) / sizeof(*invalid); ++i)
-                assert(!c_dvar_is_type(invalid[i], strlen(invalid[i])));
+                c_assert(!c_dvar_is_type(invalid[i], strlen(invalid[i])));
 
-        assert(!c_dvar_is_type("\0u", 2));
-        assert(!c_dvar_is_type("u\0", 2));
-        assert(!c_dvar_is_type("(u\0)", 4));
-        assert(!c_dvar_is_type("(u\0u)", 5));
+        c_assert(!c_dvar_is_type("\0u", 2));
+        c_assert(!c_dvar_is_type("u\0", 2));
+        c_assert(!c_dvar_is_type("(u\0)", 4));
+        c_assert(!c_dvar_is_type("(u\0u)", 5));
 }
 
 int main(int argc, char **argv) {

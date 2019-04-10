@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <c-stdaux.h>
 #include <c-utf8.h>
 #include <byteswap.h>
 #include <endian.h>
@@ -20,9 +21,9 @@
 static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_t n_data) {
         size_t i, align;
 
-        align = ALIGN_TO(var->current->i_buffer, 1 << alignment) - var->current->i_buffer;
+        align = c_align_to(var->current->i_buffer, 1 << alignment) - var->current->i_buffer;
 
-        if (_unlikely_(var->current->n_buffer < align + n_data))
+        if (_c_unlikely_(var->current->n_buffer < align + n_data))
                 return C_DVAR_E_OUT_OF_BOUNDS;
 
         /*
@@ -30,7 +31,7 @@ static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_
          * dbus-daemon.
          */
         for (i = 0; i < align; ++i)
-                if (_unlikely_(var->data[var->current->i_buffer + i]))
+                if (_c_unlikely_(var->data[var->current->i_buffer + i]))
                         return C_DVAR_E_CORRUPT_DATA;
 
         if (datap)
@@ -46,7 +47,7 @@ static int c_dvar_read_u8(CDVar *var, uint8_t *datap) {
         int r;
 
         r = c_dvar_read_data(var, 0, &p, sizeof(*datap));
-        if (_likely_(r >= 0))
+        if (_c_likely_(r >= 0))
                 *datap = *(const uint8_t *)p;
 
         return r;
@@ -57,7 +58,7 @@ static int c_dvar_read_u16(CDVar *var, uint16_t *datap) {
         int r;
 
         r = c_dvar_read_data(var, 1, &p, sizeof(*datap));
-        if (_likely_(r >= 0))
+        if (_c_likely_(r >= 0))
                 *datap = c_dvar_bswap16(var, *(const uint16_t *)p);
 
         return r;
@@ -68,7 +69,7 @@ static int c_dvar_read_u32(CDVar *var, uint32_t *datap) {
         int r;
 
         r = c_dvar_read_data(var, 2, &p, sizeof(*datap));
-        if (_likely_(r >= 0))
+        if (_c_likely_(r >= 0))
                 *datap = c_dvar_bswap32(var, *(const uint32_t *)p);
 
         return r;
@@ -79,7 +80,7 @@ static int c_dvar_read_u64(CDVar *var, uint64_t *datap) {
         int r;
 
         r = c_dvar_read_data(var, 3, &p, sizeof(*datap));
-        if (_likely_(r >= 0))
+        if (_c_likely_(r >= 0))
                 *datap = c_dvar_bswap64(var, *(const uint64_t *)p);
 
         return r;
@@ -533,7 +534,7 @@ static int c_dvar_try_vskip(CDVar *var, const char *format, va_list args) {
 /**
  * c_dvar_begin_read() - XXX
  */
-_public_ void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *types, size_t n_types, const void *data, size_t n_data) {
+_c_public_ void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *types, size_t n_types, const void *data, size_t n_data) {
         size_t i;
 
         /*
@@ -553,7 +554,7 @@ _public_ void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *ty
          * XXX: We could support a `shifted' reader, that supports parsing
          *      sub-variants. So far we didn't see a need for it, though.
          */
-        assert(data == (void *)ALIGN_TO((unsigned long)data, 8));
+        assert(data == (void *)c_align_to((unsigned long)data, 8));
 
         c_dvar_deinit(var);
 
@@ -584,18 +585,18 @@ _public_ void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *ty
 /**
  * c_dvar_more() - XXX
  */
-_public_ bool c_dvar_more(CDVar *var) {
+_c_public_ bool c_dvar_more(CDVar *var) {
         return !var->poison && var->ro && var->current && var->current->n_buffer;
 }
 
 /**
  * c_dvar_vread() - XXX
  */
-_public_ int c_dvar_vread(CDVar *var, const char *format, va_list args) {
+_c_public_ int c_dvar_vread(CDVar *var, const char *format, va_list args) {
         assert(var->ro);
         assert(var->current);
 
-        if (_unlikely_(var->poison))
+        if (_c_unlikely_(var->poison))
                 c_dvar_dummy_vread(var, format, args);
         else
                 var->poison = c_dvar_try_vread(var, format, args);
@@ -606,11 +607,11 @@ _public_ int c_dvar_vread(CDVar *var, const char *format, va_list args) {
 /**
  * c_dvar_vskip() - XXX
  */
-_public_ int c_dvar_vskip(CDVar *var, const char *format, va_list args) {
+_c_public_ int c_dvar_vskip(CDVar *var, const char *format, va_list args) {
         assert(var->ro);
         assert(var->current);
 
-        if (_unlikely_(var->poison))
+        if (_c_unlikely_(var->poison))
                 return var->poison;
 
         return var->poison = c_dvar_try_vskip(var, format, args);
@@ -619,17 +620,17 @@ _public_ int c_dvar_vskip(CDVar *var, const char *format, va_list args) {
 /**
  * c_dvar_end_read() - XXX
  */
-_public_ int c_dvar_end_read(CDVar *var) {
+_c_public_ int c_dvar_end_read(CDVar *var) {
         int r;
 
         assert(var->ro);
         assert(var->current);
 
-        if (_unlikely_(var->poison))
+        if (_c_unlikely_(var->poison))
                 r = var->poison;
-        else if (_unlikely_(var->current != var->levels || var->current->n_type))
+        else if (_c_unlikely_(var->current != var->levels || var->current->n_type))
                 r = -ENOTRECOVERABLE;
-        else if (_unlikely_(var->current->n_buffer))
+        else if (_c_unlikely_(var->current->n_buffer))
                 r = C_DVAR_E_CORRUPT_DATA;
         else
                 r = 0;
@@ -646,23 +647,23 @@ _public_ int c_dvar_end_read(CDVar *var) {
 /**
  * c_dvar_is_path() - XXX
  */
-_public_ bool c_dvar_is_path(const char *str, size_t len) {
+_c_public_ bool c_dvar_is_path(const char *str, size_t len) {
         bool slash = true;
         size_t i;
 
-        if (_unlikely_(len == 0 || *str != '/'))
+        if (_c_unlikely_(len == 0 || *str != '/'))
                 return false;
 
         for (i = 1; i < len; ++i) {
                 if (str[i] == '/') {
-                        if (_unlikely_(slash))
+                        if (_c_unlikely_(slash))
                                 return false;
 
                         slash = true;
-                } else if (_unlikely_(!((str[i] >= 'A' && str[i] <= 'Z') ||
-                                        (str[i] >= 'a' && str[i] <= 'z') ||
-                                        (str[i] >= '0' && str[i] <= '9') ||
-                                        (str[i] == '_')))) {
+                } else if (_c_unlikely_(!((str[i] >= 'A' && str[i] <= 'Z') ||
+                                          (str[i] >= 'a' && str[i] <= 'z') ||
+                                          (str[i] >= '0' && str[i] <= '9') ||
+                                          (str[i] == '_')))) {
                         return false;
                 } else {
                         slash = false;
@@ -694,18 +695,18 @@ static const char *c_dvar_verify_type(const char *string, size_t n_string) {
                 if (container == '{') {
                         if (string[i - 1] == '{') {
                                 /* first type must be basic */
-                                if (_unlikely_(!(c == 'y' || c == 'b' || c == 'n' || c == 'q' ||
-                                                 c == 'i' || c == 'u' || c == 'x' || c == 't' ||
-                                                 c == 'h' || c == 'd' || c == 's' || c == 'o' ||
-                                                 c == 'g')))
+                                if (_c_unlikely_(!(c == 'y' || c == 'b' || c == 'n' || c == 'q' ||
+                                                   c == 'i' || c == 'u' || c == 'x' || c == 't' ||
+                                                   c == 'h' || c == 'd' || c == 's' || c == 'o' ||
+                                                   c == 'g')))
                                         return NULL;
                         } else if (string[i - 2] == '{') {
                                 /* there must be a second type */
-                                if (_unlikely_(c == '}'))
+                                if (_c_unlikely_(c == '}'))
                                         return NULL;
                         } else {
                                 /* DICT is closed after second type */
-                                if (_unlikely_(c != '}'))
+                                if (_c_unlikely_(c != '}'))
                                         return NULL;
                         }
                 }
@@ -723,9 +724,9 @@ static const char *c_dvar_verify_type(const char *string, size_t n_string) {
                         /* fallthrough */
                 case 'a':
                         ++depth;
-                        if (_unlikely_(depth > C_DVAR_TYPE_DEPTH_MAX ||
-                                       n_tuple > C_DVAR_TYPE_DEPTH_MAX / 2 ||
-                                       depth - n_tuple > C_DVAR_TYPE_DEPTH_MAX / 2))
+                        if (_c_unlikely_(depth > C_DVAR_TYPE_DEPTH_MAX ||
+                                         n_tuple > C_DVAR_TYPE_DEPTH_MAX / 2 ||
+                                         depth - n_tuple > C_DVAR_TYPE_DEPTH_MAX / 2))
                                 return NULL;
 
                         if (c == '{')
@@ -739,10 +740,10 @@ static const char *c_dvar_verify_type(const char *string, size_t n_string) {
                 case '}':
                 case ')':
                         /* closing braces must match opening ones */
-                        if (_unlikely_(container != ((c == '}') ? '{' : '(')))
+                        if (_c_unlikely_(container != ((c == '}') ? '{' : '(')))
                                 return NULL;
                         /* empty structs are not allowed */
-                        if (_unlikely_(string[i - 1] == '('))
+                        if (_c_unlikely_(string[i - 1] == '('))
                                 return NULL;
 
                         --n_tuple;
@@ -802,7 +803,7 @@ static const char *c_dvar_verify_type(const char *string, size_t n_string) {
 bool c_dvar_is_signature(const char *string, size_t n_string) {
         const char *next;
 
-        if (_unlikely_(n_string > 255))
+        if (_c_unlikely_(n_string > 255))
                 return false;
 
         while (n_string) {

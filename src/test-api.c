@@ -5,6 +5,7 @@
  * shared library. Its sole purpose is to test for symbol availability.
  */
 
+#undef NDEBUG
 #include <assert.h>
 #include <endian.h>
 #include <stdalign.h>

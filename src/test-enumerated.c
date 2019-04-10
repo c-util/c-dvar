@@ -5,7 +5,9 @@
  * verify we can deal with them correctly. All of them.
  */
 
+#undef NDEBUG
 #include <assert.h>
+#include <c-stdaux.h>
 #include <dbus-typenum.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,8 +22,8 @@ static void test_valid_type(const char *typestr, size_t n_typestr) {
         /* verify @typestr is a valid type */
 
         r = c_dvar_type_new_from_signature(&type, typestr, n_typestr);
-        assert(!r);
-        assert(type->length == n_typestr);
+        c_assert(!r);
+        c_assert(type->length == n_typestr);
         c_dvar_type_free(type);
 }
 
@@ -38,11 +40,11 @@ static void test_enumerated_types(void) {
          */
 
         r = dbus_typenum_new(&e, 0);
-        assert(!r);
+        c_assert(!r);
 
         n_str = 2;
         str = malloc(n_str);
-        assert(str);
+        c_assert(str);
         pos = str;
 
         for (i = 0; i < 1 << 16; ++i) {
@@ -52,7 +54,7 @@ static void test_enumerated_types(void) {
                         c = dbus_typenum_step(e);
                         if (pos - str >= (ssize_t)n_str) {
                                 str = realloc(str, (pos - str) * 2);
-                                assert(str);
+                                c_assert(str);
                                 pos = str + n_str;
                                 n_str *= 2;
                         }

@@ -6,6 +6,7 @@
  */
 
 #include <assert.h>
+#include <c-stdaux.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdarg.h>
@@ -17,21 +18,21 @@
 
 static_assert(sizeof(CDVarType) == 4, "Unexpected padding in CDVarType");
 
-_public_ const CDVarType c_dvar_type_y[] = { C_DVAR_T_INIT(C_DVAR_T_y) };
-_public_ const CDVarType c_dvar_type_b[] = { C_DVAR_T_INIT(C_DVAR_T_b) };
-_public_ const CDVarType c_dvar_type_n[] = { C_DVAR_T_INIT(C_DVAR_T_n) };
-_public_ const CDVarType c_dvar_type_q[] = { C_DVAR_T_INIT(C_DVAR_T_q) };
-_public_ const CDVarType c_dvar_type_i[] = { C_DVAR_T_INIT(C_DVAR_T_i) };
-_public_ const CDVarType c_dvar_type_u[] = { C_DVAR_T_INIT(C_DVAR_T_u) };
-_public_ const CDVarType c_dvar_type_x[] = { C_DVAR_T_INIT(C_DVAR_T_x) };
-_public_ const CDVarType c_dvar_type_t[] = { C_DVAR_T_INIT(C_DVAR_T_t) };
-_public_ const CDVarType c_dvar_type_h[] = { C_DVAR_T_INIT(C_DVAR_T_h) };
-_public_ const CDVarType c_dvar_type_d[] = { C_DVAR_T_INIT(C_DVAR_T_d) };
-_public_ const CDVarType c_dvar_type_s[] = { C_DVAR_T_INIT(C_DVAR_T_s) };
-_public_ const CDVarType c_dvar_type_o[] = { C_DVAR_T_INIT(C_DVAR_T_o) };
-_public_ const CDVarType c_dvar_type_g[] = { C_DVAR_T_INIT(C_DVAR_T_g) };
-_public_ const CDVarType c_dvar_type_v[] = { C_DVAR_T_INIT(C_DVAR_T_v) };
-_public_ const CDVarType c_dvar_type_unit[] = { C_DVAR_T_INIT(C_DVAR_T_TUPLE0) };
+_c_public_ const CDVarType c_dvar_type_y[] = { C_DVAR_T_INIT(C_DVAR_T_y) };
+_c_public_ const CDVarType c_dvar_type_b[] = { C_DVAR_T_INIT(C_DVAR_T_b) };
+_c_public_ const CDVarType c_dvar_type_n[] = { C_DVAR_T_INIT(C_DVAR_T_n) };
+_c_public_ const CDVarType c_dvar_type_q[] = { C_DVAR_T_INIT(C_DVAR_T_q) };
+_c_public_ const CDVarType c_dvar_type_i[] = { C_DVAR_T_INIT(C_DVAR_T_i) };
+_c_public_ const CDVarType c_dvar_type_u[] = { C_DVAR_T_INIT(C_DVAR_T_u) };
+_c_public_ const CDVarType c_dvar_type_x[] = { C_DVAR_T_INIT(C_DVAR_T_x) };
+_c_public_ const CDVarType c_dvar_type_t[] = { C_DVAR_T_INIT(C_DVAR_T_t) };
+_c_public_ const CDVarType c_dvar_type_h[] = { C_DVAR_T_INIT(C_DVAR_T_h) };
+_c_public_ const CDVarType c_dvar_type_d[] = { C_DVAR_T_INIT(C_DVAR_T_d) };
+_c_public_ const CDVarType c_dvar_type_s[] = { C_DVAR_T_INIT(C_DVAR_T_s) };
+_c_public_ const CDVarType c_dvar_type_o[] = { C_DVAR_T_INIT(C_DVAR_T_o) };
+_c_public_ const CDVarType c_dvar_type_g[] = { C_DVAR_T_INIT(C_DVAR_T_g) };
+_c_public_ const CDVarType c_dvar_type_v[] = { C_DVAR_T_INIT(C_DVAR_T_v) };
+_c_public_ const CDVarType c_dvar_type_unit[] = { C_DVAR_T_INIT(C_DVAR_T_TUPLE0) };
 
 static const CDVarType *c_dvar_type_builtins[256] = {
         ['y'] = c_dvar_type_y,
@@ -80,8 +81,8 @@ static const CDVarType *c_dvar_type_builtins[256] = {
  *         C_DVAR_E_DEPTH_OVERFLOW if type exceeds depth limits,
  *         C_DVAR_E_INVALID_TYPE if element constellation is not valid.
  */
-_public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signature, size_t n_signature) {
-        _cleanup_(c_dvar_type_freep) CDVarType *allocated_type = NULL;
+_c_public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signature, size_t n_signature) {
+        _c_cleanup_(c_dvar_type_freep) CDVarType *allocated_type = NULL;
         CDVarType *type, *stack[C_DVAR_TYPE_DEPTH_MAX], *container, *this;
         size_t i, i_container, n_type, depth, depth_tuple;
         const CDVarType *builtin;
@@ -102,7 +103,7 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
         depth = 0;
 
         do {
-                if (_unlikely_(n_type >= n_signature || n_type >= C_DVAR_TYPE_LENGTH_MAX))
+                if (_c_unlikely_(n_type >= n_signature || n_type >= C_DVAR_TYPE_LENGTH_MAX))
                         return C_DVAR_E_OVERLONG_TYPE;
 
                 c = signature[n_type++];
@@ -157,15 +158,15 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
                 if (container && container->element == '{') {
                         if (i < i_container + 2) {
                                 /* first type must be basic */
-                                if (_unlikely_(!builtin || !builtin->basic))
+                                if (_c_unlikely_(!builtin || !builtin->basic))
                                         return C_DVAR_E_INVALID_TYPE;
                         } else if (i == i_container + 2) {
                                 /* there must be a second type */
-                                if (_unlikely_(c == '}'))
+                                if (_c_unlikely_(c == '}'))
                                         return C_DVAR_E_INVALID_TYPE;
                         } else if (i > i_container + 2) {
                                 /* DICT is closed after second type */
-                                if (_unlikely_(c != '}'))
+                                if (_c_unlikely_(c != '}'))
                                         return C_DVAR_E_INVALID_TYPE;
                         }
                 }
@@ -185,11 +186,11 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
                          * We verify all three here, even though our
                          * implementation would work with a unified limit.
                          */
-                        if (_unlikely_(depth > C_DVAR_TYPE_DEPTH_MAX))
+                        if (_c_unlikely_(depth > C_DVAR_TYPE_DEPTH_MAX))
                                 return C_DVAR_E_DEPTH_OVERFLOW;
-                        if (_unlikely_(depth_tuple > C_DVAR_TYPE_DEPTH_MAX / 2))
+                        if (_c_unlikely_(depth_tuple > C_DVAR_TYPE_DEPTH_MAX / 2))
                                 return C_DVAR_E_DEPTH_OVERFLOW;
-                        if (_unlikely_(depth - depth_tuple > C_DVAR_TYPE_DEPTH_MAX / 2))
+                        if (_c_unlikely_(depth - depth_tuple > C_DVAR_TYPE_DEPTH_MAX / 2))
                                 return C_DVAR_E_DEPTH_OVERFLOW;
 
                         this->size = 0;
@@ -208,7 +209,7 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
 
                 case '}':
                 case ')':
-                        if (_unlikely_(!container || container->element != ((c == '}') ? '{' : '(')))
+                        if (_c_unlikely_(!container || container->element != ((c == '}') ? '{' : '(')))
                                 return C_DVAR_E_INVALID_TYPE;
 
                         this->size = 0;
@@ -228,7 +229,7 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
                         break;
 
                 default:
-                        if (_unlikely_(!builtin))
+                        if (_c_unlikely_(!builtin))
                                 return C_DVAR_E_INVALID_TYPE;
 
                         /*
@@ -256,7 +257,7 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
 
                 if (container) {
                         if (this->size && (this == container + 1 || container->size)) {
-                                container->size = ALIGN_TO(container->size, 1 << this->alignment);
+                                container->size = c_align_to((size_t)container->size, 1 << this->alignment);
                                 container->size += this->size;
                         } else {
                                 container->size = 0;
@@ -292,7 +293,7 @@ _public_ int c_dvar_type_new_from_signature(CDVarType **typep, const char *signa
  *
  * Return: NULL is returned.
  */
-_public_ CDVarType *c_dvar_type_free(CDVarType *type) {
+_c_public_ CDVarType *c_dvar_type_free(CDVarType *type) {
         free(type);
         return NULL;
 }
@@ -317,7 +318,7 @@ _public_ CDVarType *c_dvar_type_free(CDVarType *type) {
  * Return: -1, 0, or 1, if @subject orders before, equals, or orders after
  *         @object, respectively.
  */
-_public_ int c_dvar_type_compare_string(const CDVarType *subject, const char *object, size_t n_object) {
+_c_public_ int c_dvar_type_compare_string(const CDVarType *subject, const char *object, size_t n_object) {
         static const CDVarType null = {};
         int diff;
 

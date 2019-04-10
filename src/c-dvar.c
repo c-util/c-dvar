@@ -6,6 +6,7 @@
  */
 
 #include <assert.h>
+#include <c-stdaux.h>
 #include <endian.h>
 #include <errno.h>
 #include <inttypes.h>
@@ -22,7 +23,7 @@
  * This initializes a variant object that the caller allocated. This is
  * equivalent to assigning C_DVAR_INIT to the variant.
  */
-_public_ void c_dvar_init(CDVar *var) {
+_c_public_ void c_dvar_init(CDVar *var) {
         *var = (CDVar)C_DVAR_INIT;
 }
 
@@ -36,7 +37,7 @@ _public_ void c_dvar_init(CDVar *var) {
  *
  * The object is left in a state equivalent to calling c_dvar_init() on it.
  */
-_public_ void c_dvar_deinit(CDVar *var) {
+_c_public_ void c_dvar_deinit(CDVar *var) {
         if (var->current)
                 c_dvar_rewind(var);
 
@@ -49,8 +50,8 @@ _public_ void c_dvar_deinit(CDVar *var) {
 /**
  * c_dvar_new() - XXX
  */
-_public_ int c_dvar_new(CDVar **varp) {
-        _cleanup_(c_dvar_freep) CDVar *var = NULL;
+_c_public_ int c_dvar_new(CDVar **varp) {
+        _c_cleanup_(c_dvar_freep) CDVar *var = NULL;
 
         var = malloc(sizeof(*var));
         if (!var)
@@ -66,7 +67,7 @@ _public_ int c_dvar_new(CDVar **varp) {
 /**
  * c_dvar_free() - XXX
  */
-_public_ CDVar *c_dvar_free(CDVar *var) {
+_c_public_ CDVar *c_dvar_free(CDVar *var) {
         if (!var)
                 return NULL;
 
@@ -79,21 +80,21 @@ _public_ CDVar *c_dvar_free(CDVar *var) {
 /**
  * c_dvar_is_big_endian() - XXX
  */
-_public_ bool c_dvar_is_big_endian(CDVar *var) {
+_c_public_ bool c_dvar_is_big_endian(CDVar *var) {
         return var->big_endian;
 }
 
 /**
  * c_dvar_get_poison() - XXX
  */
-_public_ int c_dvar_get_poison(CDVar *var) {
+_c_public_ int c_dvar_get_poison(CDVar *var) {
         return var->poison;
 }
 
 /**
  * c_dvar_get_data() - XXX
  */
-_public_ void c_dvar_get_data(CDVar *var, void **datap, size_t *n_datap) {
+_c_public_ void c_dvar_get_data(CDVar *var, void **datap, size_t *n_datap) {
         if (datap)
                 *datap = var->data;
         if (n_datap)
@@ -103,7 +104,7 @@ _public_ void c_dvar_get_data(CDVar *var, void **datap, size_t *n_datap) {
 /**
  * c_dvar_get_root_type() - XXX
  */
-_public_ void c_dvar_get_root_types(CDVar *var, const CDVarType **typesp, size_t *n_typesp) {
+_c_public_ void c_dvar_get_root_types(CDVar *var, const CDVarType **typesp, size_t *n_typesp) {
         if (typesp)
                 *typesp = var->current ? var->levels[0].parent_types : NULL;
         if (n_typesp)
@@ -113,7 +114,7 @@ _public_ void c_dvar_get_root_types(CDVar *var, const CDVarType **typesp, size_t
 /**
  * c_dvar_get_parent_type() - XXX
  */
-_public_ void c_dvar_get_parent_types(CDVar *var, const CDVarType **typesp, size_t *n_typesp) {
+_c_public_ void c_dvar_get_parent_types(CDVar *var, const CDVarType **typesp, size_t *n_typesp) {
         if (typesp)
                 *typesp = var->current ? var->current->parent_types : NULL;
         if (n_typesp)
@@ -126,7 +127,7 @@ void c_dvar_rewind(CDVar *var) {
                         free(var->current->parent_types);
 
         /* root-level type is always caller-owned */
-        assert(!var->current->allocated_parent_types);
+        c_assert(!var->current->allocated_parent_types);
 }
 
 /*
@@ -205,13 +206,13 @@ int c_dvar_next_varg(CDVar *var, char c) {
                  * parser verifies this already, but this can be circumvented
                  * by using nested variants or hand-crafted types.
                  */
-                if (_unlikely_(var->current >= var->levels + C_DVAR_TYPE_DEPTH_MAX - 1))
+                if (_c_unlikely_(var->current >= var->levels + C_DVAR_TYPE_DEPTH_MAX - 1))
                         return -ENOTRECOVERABLE;
 
                 /* fallthrough */
         default:
-                if (_unlikely_(!var->current->n_type ||
-                               var->current->i_type->element != real_c))
+                if (_c_unlikely_(!var->current->n_type ||
+                                 var->current->i_type->element != real_c))
                         return -ENOTRECOVERABLE;
 
                 break;

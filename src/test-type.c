@@ -5,7 +5,9 @@
  * tests for known values, as well as automated tests for random types.
  */
 
+#undef NDEBUG
 #include <assert.h>
+#include <c-stdaux.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -81,16 +83,16 @@ static void test_common(void) {
         int r;
 
         r = c_dvar_type_new_from_string(&type, "()");
-        assert(!r);
+        c_assert(!r);
 
-        assert(!memcmp(c_dvar_type_unit, type, type->length * sizeof(*type)));
-        assert(!memcmp(c_dvar_type_unit,
+        c_assert(!memcmp(c_dvar_type_unit, type, type->length * sizeof(*type)));
+        c_assert(!memcmp(c_dvar_type_unit,
                        (const CDVarType[]){ C_DVAR_T_INIT(C_DVAR_T_TUPLE0) },
                        c_dvar_type_unit->length * sizeof(CDVarType)));
 }
 
 static void test_known_types(void) {
-        _cleanup_(c_dvar_type_freep) CDVarType *type = NULL;
+        _c_cleanup_(c_dvar_type_freep) CDVarType *type = NULL;
         const CDVarType *expect;
         const char *signature;
         size_t i, n_signature;
@@ -108,17 +110,17 @@ static void test_known_types(void) {
 
         while (n_signature) {
                 r = c_dvar_type_new_from_signature(&type, signature, n_signature);
-                assert(!r);
+                c_assert(!r);
 
                 /* this is redunant, but tests the compare operator */
-                assert(!c_dvar_type_compare_string(type, signature, type->length));
+                c_assert(!c_dvar_type_compare_string(type, signature, type->length));
 
                 for (i = 0; i < type->length; ++i) {
-                        assert(expect[i].size == type[i].size);
-                        assert(expect[i].alignment == type[i].alignment);
-                        assert(expect[i].element == type[i].element);
-                        assert(expect[i].length == type[i].length);
-                        assert(expect[i].basic == type[i].basic);
+                        c_assert(expect[i].size == type[i].size);
+                        c_assert(expect[i].alignment == type[i].alignment);
+                        c_assert(expect[i].element == type[i].element);
+                        c_assert(expect[i].length == type[i].length);
+                        c_assert(expect[i].basic == type[i].basic);
                 }
 
                 n_signature -= type->length;
@@ -127,7 +129,7 @@ static void test_known_types(void) {
                 type = c_dvar_type_free(type);
         }
 
-        assert(expect == test_array + sizeof(test_array) / sizeof(*test_array));
+        c_assert(expect == test_array + sizeof(test_array) / sizeof(*test_array));
 }
 
 static void test_valid_types(void) {
@@ -150,7 +152,7 @@ static void test_valid_types(void) {
 
         for (i = 0; i < sizeof(signatures) / sizeof(*signatures); ++i) {
                 r = c_dvar_type_new_from_string(&type, signatures[i]);
-                assert(!r);
+                c_assert(!r);
                 type = c_dvar_type_free(type);
         }
 }
@@ -194,8 +196,8 @@ static void test_invalid_types(void) {
 
         for (i = 0; i < sizeof(signatures) / sizeof(*signatures); ++i) {
                 r = c_dvar_type_new_from_string(&type, signatures[i]);
-                assert(r != 0);
-                assert(r > 0);
+                c_assert(r != 0);
+                c_assert(r > 0);
         }
 }
 

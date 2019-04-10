@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <c-stdaux.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdarg.h>
@@ -19,9 +20,9 @@ static int c_dvar_write_data(CDVar *var, int alignment, const void *data, size_t
         int shift;
         void *p;
 
-        align = ALIGN_TO(var->current->i_buffer, 1 << alignment) - var->current->i_buffer;
+        align = c_align_to(var->current->i_buffer, 1 << alignment) - var->current->i_buffer;
 
-        if (_unlikely_(var->n_data - var->current->i_buffer < align + n_data)) {
+        if (_c_unlikely_(var->n_data - var->current->i_buffer < align + n_data)) {
                 n = var->current->i_buffer + align + n_data;
                 if (n <= 4096) {
                         /* use page-size as base */
@@ -216,7 +217,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                 case 'o':
                         str = va_arg(args, const char *);
                         n = strlen(str);
-                        if (_unlikely_(n > UINT32_MAX))
+                        if (_c_unlikely_(n > UINT32_MAX))
                                 return -ENOTRECOVERABLE;
 
                         r = c_dvar_write_u32(var, n);
@@ -232,7 +233,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
                 case 'g':
                         str = va_arg(args, const char *);
                         n = strlen(str);
-                        if (_unlikely_(n > UINT8_MAX))
+                        if (_c_unlikely_(n > UINT8_MAX))
                                 return -ENOTRECOVERABLE;
 
                         r = c_dvar_write_u8(var, n);
@@ -268,7 +269,7 @@ static int c_dvar_try_vwrite(CDVar *var, const char *format, va_list args) {
 /**
  * c_dvar_begin_write() - XXX
  */
-_public_ void c_dvar_begin_write(CDVar *var, bool big_endian, const CDVarType *types, size_t n_types) {
+_c_public_ void c_dvar_begin_write(CDVar *var, bool big_endian, const CDVarType *types, size_t n_types) {
         size_t i;
 
         c_dvar_deinit(var);
@@ -286,7 +287,7 @@ _public_ void c_dvar_begin_write(CDVar *var, bool big_endian, const CDVarType *t
         var->current->index = 0;
 
         for (i = 0; i < n_types; ++i) {
-                assert(var->n_root_type + types->length >= types->length);
+                c_assert(var->n_root_type + types->length >= types->length);
                 var->n_root_type += types->length;
                 types += types->length;
         }
@@ -297,11 +298,11 @@ _public_ void c_dvar_begin_write(CDVar *var, bool big_endian, const CDVarType *t
 /**
  * c_dvar_vwrite() - XXX
  */
-_public_ int c_dvar_vwrite(CDVar *var, const char *format, va_list args) {
-        assert(!var->ro);
-        assert(var->current);
+_c_public_ int c_dvar_vwrite(CDVar *var, const char *format, va_list args) {
+        c_assert(!var->ro);
+        c_assert(var->current);
 
-        if (_unlikely_(var->poison))
+        if (_c_unlikely_(var->poison))
                 return var->poison;
 
         return var->poison = c_dvar_try_vwrite(var, format, args);
@@ -310,16 +311,16 @@ _public_ int c_dvar_vwrite(CDVar *var, const char *format, va_list args) {
 /**
  * c_dvar_end_write() - XXX
  */
-_public_ int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap) {
+_c_public_ int c_dvar_end_write(CDVar *var, void **datap, size_t *n_datap) {
         int r;
 
-        assert(!var->ro);
-        assert(var->current);
+        c_assert(!var->ro);
+        c_assert(var->current);
 
-        if (_unlikely_(var->poison)) {
+        if (_c_unlikely_(var->poison)) {
                 free(var->data);
                 r = var->poison;
-        } else if (_unlikely_(var->current != var->levels || var->current->n_type)) {
+        } else if (_c_unlikely_(var->current != var->levels || var->current->n_type)) {
                 free(var->data);
                 r = C_DVAR_E_CORRUPT_DATA;
         } else {

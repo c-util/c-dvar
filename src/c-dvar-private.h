@@ -7,6 +7,7 @@
  * definitions.
  */
 
+#include <c-stdaux.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdarg.h>
@@ -15,13 +16,6 @@
 #include "c-dvar.h"
 
 typedef struct CDVarLevel CDVarLevel;
-
-#define _cleanup_(_x) __attribute__((__cleanup__(_x)))
-#define _likely_(_x) (__builtin_expect(!!(_x), 1))
-#define _public_ __attribute__((__visibility__("default")))
-#define _unlikely_(_x) (__builtin_expect(!!(_x), 0))
-
-#define ALIGN_TO(_val, _alignment) ((_val + (_alignment) - 1) & ~((_alignment) - 1))
 
 bool c_dvar_is_string(const char *string, size_t n_string);
 bool c_dvar_is_signature(const char *string, size_t n_string);

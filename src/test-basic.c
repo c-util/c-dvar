@@ -5,7 +5,9 @@
  * Those tests should be fast and provide good coverage for initial testing.
  */
 
+#undef NDEBUG
 #include <assert.h>
+#include <c-stdaux.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,8 +16,8 @@
 #include "c-dvar-type.h"
 
 static void test_basic_serialization(bool big_endian) {
-        _cleanup_(c_dvar_type_freep) CDVarType *type = NULL;
-        _cleanup_(c_dvar_freep) CDVar *var = NULL;
+        _c_cleanup_(c_dvar_type_freep) CDVarType *type = NULL;
+        _c_cleanup_(c_dvar_freep) CDVar *var = NULL;
         const char *str1, *str2;
         size_t n_data;
         void *data;
@@ -35,10 +37,10 @@ static void test_basic_serialization(bool big_endian) {
          */
 
         r = c_dvar_type_new_from_string(&type, "(yua{sv}d)");
-        assert(!r);
+        c_assert(!r);
 
         r = c_dvar_new(&var);
-        assert(!r);
+        c_assert(!r);
 
         /* write example data */
 
@@ -57,7 +59,7 @@ static void test_basic_serialization(bool big_endian) {
                      7.0);
 
         r = c_dvar_end_write(var, &data, &n_data);
-        assert(!r);
+        c_assert(!r);
 
         /* read back example data */
 
@@ -74,16 +76,16 @@ static void test_basic_serialization(bool big_endian) {
                     c_dvar_type_t,
                     &u64,
                     &d);
-        assert(u8 == 7);
-        assert(u32 == 7);
-        assert(!strcmp(str1, "foo"));
-        assert(u16 == 7);
-        assert(!strcmp(str2, "bar"));
-        assert(u64 == 7);
-        assert(d > 6.0 && d < 8.0);
+        c_assert(u8 == 7);
+        c_assert(u32 == 7);
+        c_assert(!strcmp(str1, "foo"));
+        c_assert(u16 == 7);
+        c_assert(!strcmp(str2, "bar"));
+        c_assert(u64 == 7);
+        c_assert(d > 6.0 && d < 8.0);
 
         r = c_dvar_end_read(var);
-        assert(!r);
+        c_assert(!r);
 
         /* skip example data */
 
@@ -92,7 +94,7 @@ static void test_basic_serialization(bool big_endian) {
         c_dvar_skip(var, "(yu[{s*}{s<t>}]d)", c_dvar_type_t);
 
         r = c_dvar_end_read(var);
-        assert(!r);
+        c_assert(!r);
 
         /* skip example data again */
 
@@ -101,7 +103,7 @@ static void test_basic_serialization(bool big_endian) {
         c_dvar_skip(var, "*");
 
         r = c_dvar_end_read(var);
-        assert(!r);
+        c_assert(!r);
 
         free(data);
 }
@@ -130,7 +132,7 @@ static void test_dbus_message(void) {
                         )
                 )
         };
-        _cleanup_(c_dvar_freep) CDVar *var = NULL;
+        _c_cleanup_(c_dvar_freep) CDVar *var = NULL;
         size_t n_data;
         void *data;
         int r;
@@ -141,7 +143,7 @@ static void test_dbus_message(void) {
          */
 
         r = c_dvar_new(&var);
-        assert(!r);
+        c_assert(!r);
 
         c_dvar_begin_write(var, (__BYTE_ORDER == __BIG_ENDIAN), type, 1);
 
@@ -151,7 +153,7 @@ static void test_dbus_message(void) {
         c_dvar_write(var, "](st))", "", 0);
 
         r = c_dvar_end_write(var, &data, &n_data);
-        assert(!r);
+        c_assert(!r);
 
         free(data);
 }
@@ -163,7 +165,7 @@ static void test_dbus_body(void) {
                 C_DVAR_T_INIT(C_DVAR_T_s),
                 C_DVAR_T_INIT(C_DVAR_T_s),
         };
-        _cleanup_(c_dvar_freep) CDVar *var = NULL;
+        _c_cleanup_(c_dvar_freep) CDVar *var = NULL;
         const char *str;
         size_t n_data;
         void *data;
@@ -174,22 +176,22 @@ static void test_dbus_body(void) {
          */
 
         r = c_dvar_new(&var);
-        assert(!r);
+        c_assert(!r);
 
         c_dvar_begin_write(var, (__BYTE_ORDER == __BIG_ENDIAN), types, 3);
         c_dvar_write(var, "sss", "fo", "ob", "ar");
         r = c_dvar_end_write(var, &data, &n_data);
-        assert(!r);
+        c_assert(!r);
 
         c_dvar_begin_read(var, c_dvar_is_big_endian(var), types, 3, data, n_data);
         c_dvar_read(var, "s", &str);
-        assert(!strcmp(str, "fo"));
+        c_assert(!strcmp(str, "fo"));
         c_dvar_read(var, "s", &str);
-        assert(!strcmp(str, "ob"));
+        c_assert(!strcmp(str, "ob"));
         c_dvar_read(var, "s", &str);
-        assert(!strcmp(str, "ar"));
+        c_assert(!strcmp(str, "ar"));
         r = c_dvar_end_read(var);
-        assert(!r);
+        c_assert(!r);
 
         free(data);
 }
