@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "c-dvar.h"
+#include "c-dvar-type.h"
 
 static void test_api(void) {
         __attribute__((__cleanup__(c_dvar_type_freep))) CDVarType *type = NULL;
@@ -113,7 +114,115 @@ static void test_api(void) {
         c_dvar_deinit(&var);
 }
 
+static void test_types(void) {
+        static const CDVarType types[] = {
+                C_DVAR_T_INIT(C_DVAR_T_y),
+                C_DVAR_T_INIT(C_DVAR_T_b),
+                C_DVAR_T_INIT(C_DVAR_T_n),
+                C_DVAR_T_INIT(C_DVAR_T_q),
+                C_DVAR_T_INIT(C_DVAR_T_i),
+                C_DVAR_T_INIT(C_DVAR_T_u),
+                C_DVAR_T_INIT(C_DVAR_T_x),
+                C_DVAR_T_INIT(C_DVAR_T_t),
+                C_DVAR_T_INIT(C_DVAR_T_h),
+                C_DVAR_T_INIT(C_DVAR_T_d),
+                C_DVAR_T_INIT(C_DVAR_T_s),
+                C_DVAR_T_INIT(C_DVAR_T_o),
+                C_DVAR_T_INIT(C_DVAR_T_g),
+                C_DVAR_T_INIT(C_DVAR_T_v),
+
+                C_DVAR_T_INIT(C_DVAR_T_ARRAY(C_DVAR_T_y)),
+                C_DVAR_T_INIT(C_DVAR_T_PAIR(C_DVAR_T_y, C_DVAR_T_y)),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE(C_DVAR_T_TUPLE_APPEND(C_DVAR_T_y, C_DVAR_T_y))),
+
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE0),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE1(
+                        C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE2(
+                        C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE3(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE4(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE5(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE6(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE7(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE8(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE9(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE10(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE11(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE12(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE13(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE14(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE15(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
+                )),
+                C_DVAR_T_INIT(C_DVAR_T_TUPLE16(
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
+                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
+                )),
+        };
+        size_t i;
+
+        assert(C_DVAR_T_SIZE(C_DVAR_T_y));
+        assert(!C_DVAR_T_ALIGNMENT(C_DVAR_T_y));
+        assert(C_DVAR_T_SIGNATURE(C_DVAR_T_y));
+        assert(C_DVAR_T_LENGTH(C_DVAR_T_y));
+        assert(C_DVAR_T_BASIC(C_DVAR_T_y));
+
+        for (i = 0; i < sizeof(types) / sizeof(*types); ++i)
+                assert(types[i].element);
+}
+
 int main(int argc, char **argv) {
         test_api();
+        test_types();
         return 0;
 }

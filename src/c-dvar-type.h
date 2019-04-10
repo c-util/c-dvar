@@ -442,6 +442,254 @@ extern "C" {
                         _type_l)        \
         )
 
+/**
+ * C_DVAR_T_TUPLE10(): XXX
+ */
+#define C_DVAR_T_TUPLE10(_type1, _type2, _type3, _type4, _type5, _type6, _type7, _type8, _type9, _type_l) \
+        C_DVAR_T_TUPLE(                 \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                        _type1,         \
+                        _type2),        \
+                        _type3),        \
+                        _type4),        \
+                        _type5),        \
+                        _type6),        \
+                        _type7),        \
+                        _type8),        \
+                        _type9),        \
+                        _type_l)        \
+        )
+
+/**
+ * C_DVAR_T_TUPLE11(): XXX
+ */
+#define C_DVAR_T_TUPLE11(_type1, _type2, _type3, _type4, _type5, _type6, _type7, _type8, _type9, _type10, _type_l) \
+        C_DVAR_T_TUPLE(                 \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                        _type1,         \
+                        _type2),        \
+                        _type3),        \
+                        _type4),        \
+                        _type5),        \
+                        _type6),        \
+                        _type7),        \
+                        _type8),        \
+                        _type9),        \
+                        _type10),       \
+                        _type_l)        \
+        )
+
+/**
+ * C_DVAR_T_TUPLE12(): XXX
+ */
+#define C_DVAR_T_TUPLE12(               \
+                _type1,  _type2,  _type3,  _type4,      \
+                _type5,  _type6,  _type7,  _type8,      \
+                _type9,  _type10, _type11, _type_l      \
+        )                               \
+        C_DVAR_T_TUPLE(                 \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                        _type1,         \
+                        _type2),        \
+                        _type3),        \
+                        _type4),        \
+                        _type5),        \
+                        _type6),        \
+                        _type7),        \
+                        _type8),        \
+                        _type9),        \
+                        _type10),       \
+                        _type11),       \
+                        _type_l)        \
+        )
+
+/**
+ * C_DVAR_T_TUPLE13(): XXX
+ */
+#define C_DVAR_T_TUPLE13(               \
+                _type1,  _type2,  _type3,  _type4,      \
+                _type5,  _type6,  _type7,  _type8,      \
+                _type9,  _type10, _type11, _type12,     \
+                _type_l                                 \
+        )                               \
+        C_DVAR_T_TUPLE(                 \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                        _type1,         \
+                        _type2),        \
+                        _type3),        \
+                        _type4),        \
+                        _type5),        \
+                        _type6),        \
+                        _type7),        \
+                        _type8),        \
+                        _type9),        \
+                        _type10),       \
+                        _type11),       \
+                        _type12),       \
+                        _type_l)        \
+        )
+
+/**
+ * C_DVAR_T_TUPLE14(): XXX
+ */
+#define C_DVAR_T_TUPLE14(               \
+                _type1,  _type2,  _type3,  _type4,      \
+                _type5,  _type6,  _type7,  _type8,      \
+                _type9,  _type10, _type11, _type12,     \
+                _type13, _type_l                        \
+        )                               \
+        C_DVAR_T_TUPLE(                 \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                        _type1,         \
+                        _type2),        \
+                        _type3),        \
+                        _type4),        \
+                        _type5),        \
+                        _type6),        \
+                        _type7),        \
+                        _type8),        \
+                        _type9),        \
+                        _type10),       \
+                        _type11),       \
+                        _type12),       \
+                        _type13),       \
+                        _type_l)        \
+        )
+
+/**
+ * C_DVAR_T_TUPLE15(): XXX
+ */
+#define C_DVAR_T_TUPLE15(               \
+                _type1,  _type2,  _type3,  _type4,      \
+                _type5,  _type6,  _type7,  _type8,      \
+                _type9,  _type10, _type11, _type12,     \
+                _type13, _type14, _type_l               \
+        )                               \
+        C_DVAR_T_TUPLE(                 \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                        _type1,         \
+                        _type2),        \
+                        _type3),        \
+                        _type4),        \
+                        _type5),        \
+                        _type6),        \
+                        _type7),        \
+                        _type8),        \
+                        _type9),        \
+                        _type10),       \
+                        _type11),       \
+                        _type12),       \
+                        _type13),       \
+                        _type14),       \
+                        _type_l)        \
+        )
+
+/**
+ * C_DVAR_T_TUPLE16(): XXX
+ */
+#define C_DVAR_T_TUPLE16(               \
+                _type1,  _type2,  _type3,  _type4,      \
+                _type5,  _type6,  _type7,  _type8,      \
+                _type9,  _type10, _type11, _type12,     \
+                _type13, _type14, _type15, _type_l      \
+        )                               \
+        C_DVAR_T_TUPLE(                 \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                C_DVAR_T_TUPLE_APPEND(  \
+                        _type1,         \
+                        _type2),        \
+                        _type3),        \
+                        _type4),        \
+                        _type5),        \
+                        _type6),        \
+                        _type7),        \
+                        _type8),        \
+                        _type9),        \
+                        _type10),       \
+                        _type11),       \
+                        _type12),       \
+                        _type13),       \
+                        _type14),       \
+                        _type15),       \
+                        _type_l)        \
+        )
+
 #ifdef __cplusplus
 }
 #endif
