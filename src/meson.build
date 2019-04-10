@@ -5,7 +5,8 @@
 libcdvar_symfile = join_paths(meson.current_source_dir(), 'libcdvar.sym')
 
 libcdvar_deps = [
-        libcutf8_dep,
+        dep_cstdaux,
+        dep_cutf8,
 ]
 
 libcdvar_private = static_library(
@@ -70,8 +71,8 @@ test('API Symbol Visibility', test_api)
 test_basic = executable('test-basic', ['test-basic.c'], dependencies: libcdvar_dep)
 test('Basic API Behavior', test_basic)
 
-if libdbus_typenum_dep.found()
-        test_enumerated = executable('test-enumerated', ['test-enumerated.c'], dependencies: [ libcdvar_dep, libdbus_typenum_dep ])
+if dep_typenum.found()
+        test_enumerated = executable('test-enumerated', ['test-enumerated.c'], dependencies: [ libcdvar_dep, dep_typenum ])
         test('Type and Data Verification with Enumerated Types', test_enumerated)
 endif
 
