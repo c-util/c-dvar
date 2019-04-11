@@ -164,50 +164,6 @@ static void test_types(void) {
                         C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
                         C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
                 )),
-                C_DVAR_T_INIT(C_DVAR_T_TUPLE9(
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y
-                )),
-                C_DVAR_T_INIT(C_DVAR_T_TUPLE10(
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y
-                )),
-                C_DVAR_T_INIT(C_DVAR_T_TUPLE11(
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
-                )),
-                C_DVAR_T_INIT(C_DVAR_T_TUPLE12(
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
-                )),
-                C_DVAR_T_INIT(C_DVAR_T_TUPLE13(
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y
-                )),
-                C_DVAR_T_INIT(C_DVAR_T_TUPLE14(
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y
-                )),
-                C_DVAR_T_INIT(C_DVAR_T_TUPLE15(
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
-                )),
-                C_DVAR_T_INIT(C_DVAR_T_TUPLE16(
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y,
-                        C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y, C_DVAR_T_y
-                )),
         };
         size_t i;
 
@@ -219,6 +175,25 @@ static void test_types(void) {
 
         for (i = 0; i < sizeof(types) / sizeof(*types); ++i)
                 assert(types[i].element);
+
+        /* these stress the compiler too much to evaluate in test-suites */
+#if !defined(C_DVAR_T_TUPLE9)
+        assert(0);
+#elif !defined(C_DVAR_T_TUPLE10)
+        assert(0);
+#elif !defined(C_DVAR_T_TUPLE11)
+        assert(0);
+#elif !defined(C_DVAR_T_TUPLE12)
+        assert(0);
+#elif !defined(C_DVAR_T_TUPLE13)
+        assert(0);
+#elif !defined(C_DVAR_T_TUPLE14)
+        assert(0);
+#elif !defined(C_DVAR_T_TUPLE15)
+        assert(0);
+#elif !defined(C_DVAR_T_TUPLE16)
+        assert(0);
+#endif
 }
 
 int main(int argc, char **argv) {
