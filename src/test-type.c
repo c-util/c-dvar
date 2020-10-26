@@ -78,13 +78,30 @@ static const CDVarType test_array[] = {
         ),
 };
 
+static void test_base(void) {
+        c_assert(sizeof(CDVarType) == 4);
+}
+
 static void test_common(void) {
         CDVarType *type = (CDVarType[2]){};
+        unsigned int i;
         int r;
 
         r = c_dvar_type_new_from_string(&type, "()");
         c_assert(!r);
 
+        /* test open coded comparison for better debugging */
+        c_assert(type->length == 2);
+        for (i = 0; i < 2; ++i) {
+                c_assert(c_dvar_type_unit[i].size == type[i].size);
+                c_assert(c_dvar_type_unit[i].alignment == type[i].alignment);
+                c_assert(c_dvar_type_unit[i].element == type[i].element);
+                c_assert(c_dvar_type_unit[i].length == type[i].length);
+                c_assert(c_dvar_type_unit[i].basic == type[i].basic);
+                c_assert(c_dvar_type_unit[i].__padding == type[i].__padding);
+        }
+
+        /* test memcmp-comparison for API guarantees */
         c_assert(!memcmp(c_dvar_type_unit, type, type->length * sizeof(*type)));
         c_assert(!memcmp(c_dvar_type_unit,
                        (const CDVarType[]){ C_DVAR_T_INIT(C_DVAR_T_TUPLE0) },
@@ -202,6 +219,7 @@ static void test_invalid_types(void) {
 }
 
 int main(int argc, char **argv) {
+        test_base();
         test_common();
         test_known_types();
         test_valid_types();
