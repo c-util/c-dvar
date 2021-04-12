@@ -196,10 +196,98 @@ static void test_dbus_body(void) {
         free(data);
 }
 
+static void test_skip(void) {
+        _c_cleanup_(c_dvar_type_freep) CDVarType *type = NULL;
+        _c_cleanup_(c_dvar_freep) CDVar *var = NULL;
+        size_t n_data;
+        void *data;
+        uint64_t t0, t1;
+        int r;
+
+        /*
+         * A very basic serialization and deserialization test that serves as
+         * base-line for reader/writer operation testing.
+         *
+         * We simply allocate and build a variant of a fixed type, then read it
+         * back and verify the data matches.
+         */
+
+        r = c_dvar_type_new_from_string(&type, "at");
+        c_assert(!r);
+
+        r = c_dvar_new(&var);
+        c_assert(!r);
+
+        /* write example data */
+
+        c_dvar_begin_write(var, (__BYTE_ORDER == __BIG_ENDIAN), type, 1);
+
+        c_dvar_write(var, "[tt]", UINT64_C(7), UINT64_C(127));
+
+        r = c_dvar_end_write(var, &data, &n_data);
+        c_assert(!r);
+
+        /* read back example data */
+
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, 1, data, n_data);
+
+        c_dvar_read(var, "[tt]", &t0, &t1);
+        c_assert(t0 == 7);
+        c_assert(t1 == 127);
+
+        r = c_dvar_end_read(var);
+        c_assert(!r);
+
+        /* skip example data */
+
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, 1, data, n_data);
+
+        c_dvar_skip(var, "*");
+
+        r = c_dvar_end_read(var);
+        c_assert(!r);
+
+        /* skip single array member */
+
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, 1, data, n_data);
+
+        c_dvar_skip(var, "[*t]");
+
+        r = c_dvar_end_read(var);
+        c_assert(!r);
+
+        /* skip both array members */
+
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, 1, data, n_data);
+
+        c_dvar_skip(var, "[**]");
+
+        r = c_dvar_end_read(var);
+        c_assert(!r);
+
+        /* skip past last member */
+
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, 1, data, n_data);
+
+        c_dvar_skip(var, "[tt*");
+        c_assert(c_dvar_get_poison(var) == -ENOTRECOVERABLE);
+
+        /* skip past array */
+
+        c_dvar_begin_read(var, c_dvar_is_big_endian(var), type, 1, data, n_data);
+
+        c_dvar_skip(var, "[tt]*");
+        c_assert(c_dvar_get_poison(var) == -ENOTRECOVERABLE);
+
+        c_dvar_end_read(var);
+        free(data);
+}
+
 int main(int argc, char **argv) {
         test_basic_serialization(true);
         test_basic_serialization(false);
         test_dbus_message();
         test_dbus_body();
+        test_skip();
         return 0;
 }
