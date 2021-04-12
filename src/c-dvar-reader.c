@@ -430,13 +430,10 @@ static int c_dvar_ff(CDVar *var) {
         char c;
         int r;
 
-        if (!var->current->n_type)
-                return -ENOTRECOVERABLE;
-
         do {
                 if (var->current->n_type && (var->current->container != 'a' || c_dvar_more(var))) {
                         c = var->current->i_type->element;
-                } else {
+                } else if (depth > 0) {
                         switch (var->current->container) {
                         case 'a':
                                 c = ']';
@@ -453,6 +450,13 @@ static int c_dvar_ff(CDVar *var) {
                         default:
                                 return -ENOTRECOVERABLE;
                         }
+                } else {
+                        /*
+                         * You cannot fast-forward if you are at the end of a
+                         * compound type, or past the last element of an array.
+                         * There is nothing to skip.
+                         */
+                        return -ENOTRECOVERABLE;
                 }
 
                 switch (c) {
