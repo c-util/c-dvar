@@ -484,6 +484,32 @@ static int c_dvar_ff(CDVar *var) {
                         assert(depth > 0);
                         --depth;
                         break;
+                case 'y':
+                case 'n':
+                case 'q':
+                case 'i':
+                case 'h':
+                case 'u':
+                case 'x':
+                case 't':
+                case 'd':
+                        /*
+                         * If we are skipping an entire array with a fixed size
+                         * member, we can jump over all members in one go. Note
+                         * that this only works if the member does not need any
+                         * validation (this excludes 'b' and any non-basic
+                         * type), because callers rely on this function to
+                         * check for content validity.
+                         */
+                        if (depth > 0 && var->current->container == 'a') {
+                                int t = var->current->n_buffer % var->current->i_type->size;
+                                var->current->i_buffer += var->current->n_buffer - t;
+                                var->current->n_buffer = t;
+
+                                c = ']';
+                                --depth;
+                        }
+                        break;
                 }
 
                 r = c_dvar_read(var, (char [2]){ c, 0 }, NULL);
