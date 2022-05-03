@@ -9,8 +9,8 @@ libcdvar_deps = [
         dep_cutf8,
 ]
 
-libcdvar_private = static_library(
-        'cdvar-private',
+libcdvar_both = both_libraries(
+        'cdvar-'+major,
         [
                 'c-dvar.c',
                 'c-dvar-common.c',
@@ -23,26 +23,19 @@ libcdvar_private = static_library(
                 '-fno-common',
         ],
         dependencies: libcdvar_deps,
-        pic: true,
-)
-
-libcdvar_shared = shared_library(
-        'cdvar',
-        objects: libcdvar_private.extract_all_objects(),
-        dependencies: libcdvar_deps,
         install: not meson.is_subproject(),
-        soversion: 0,
-        link_depends: libcdvar_symfile,
         link_args: [
                 '-Wl,--no-undefined',
                 '-Wl,--version-script=@0@'.format(libcdvar_symfile),
         ],
+        link_depends: libcdvar_symfile,
+        soversion: 0,
 )
 
 libcdvar_dep = declare_dependency(
-        include_directories: include_directories('.'),
-        link_with: libcdvar_private,
         dependencies: libcdvar_deps,
+        include_directories: include_directories('.'),
+        link_with: libcdvar_both.get_static_lib(),
         version: meson.project_version(),
 )
 
@@ -53,11 +46,11 @@ if not meson.is_subproject()
         )
 
         mod_pkgconfig.generate(
-                libraries: libcdvar_shared,
-                version: meson.project_version(),
-                name: 'libcdvar',
-                filebase: 'libcdvar',
                 description: project_description,
+                filebase: 'libcdvar-'+major,
+                libraries: libcdvar_both.get_shared_lib(),
+                name: 'libcdvar',
+                version: meson.project_version(),
         )
 endif
 
@@ -65,7 +58,7 @@ endif
 # target: test-*
 #
 
-test_api = executable('test-api', ['test-api.c'], link_with: libcdvar_shared)
+test_api = executable('test-api', ['test-api.c'], link_with: libcdvar_both.get_shared_lib())
 test('API Symbol Visibility', test_api)
 
 test_basic = executable('test-basic', ['test-basic.c'], dependencies: libcdvar_dep)
