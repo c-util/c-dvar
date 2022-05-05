@@ -288,7 +288,7 @@ _c_public_ void c_dvar_begin_write(CDVar *var, bool big_endian, const CDVarType 
         var->current->index = 0;
 
         for (i = 0; i < n_types; ++i) {
-                c_assert(var->n_root_type + types->length >= types->length);
+                c_assert(var->n_root_type + (uint8_t)types->length >= (uint8_t)types->length);
                 var->n_root_type += types->length;
                 types += types->length;
         }

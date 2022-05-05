@@ -604,7 +604,7 @@ _c_public_ void c_dvar_begin_read(CDVar *var, bool big_endian, const CDVarType *
         var->current->n_buffer = var->n_data;
 
         for (i = 0; i < n_types; ++i) {
-                assert(var->n_root_type + types->length >= types->length);
+                assert(var->n_root_type + (uint8_t)types->length >= (uint8_t)types->length);
                 var->n_root_type += types->length;
                 types += types->length;
         }
