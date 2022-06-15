@@ -92,7 +92,7 @@ static void test_api(void) {
         c_dvar_read(&var, "u", &value);
         c_dvar_skip(&var, "");
         r = c_dvar_end_read(&var);
-        assert(r >= 0);
+        assert(!r);
         assert(value == 7);
 
         assert(c_dvar_is_path("/", strlen("/")));
@@ -106,7 +106,7 @@ static void test_api(void) {
         c_dvar_begin_write(&var, (__BYTE_ORDER == __BIG_ENDIAN), &t, 1);
         c_dvar_write(&var, "u", 0);
         r = c_dvar_end_write(&var, &data, &n_data);
-        assert(r >= 0);
+        assert(!r);
         assert(data);
         assert(n_data);
         free(data);

@@ -283,11 +283,39 @@ static void test_skip(void) {
         free(data);
 }
 
+static void test_sample0(void) {
+        static const CDVarType types[] = {
+                /* gs */
+                C_DVAR_T_INIT(C_DVAR_T_g),
+                C_DVAR_T_INIT(C_DVAR_T_s),
+        };
+        static const uint8_t data[] = {
+                0, 0,
+        };
+        _c_cleanup_(c_dvar_freep) CDVar *var = NULL;
+        int r;
+
+        /*
+         * This sample reads "gs" from a short buffer. It was reported on
+         * dbus-broker and used to trigger out-of-bound reads. Verify this is
+         * now correctly handled as OUT_OF_BOUND error.
+         */
+
+        r = c_dvar_new(&var);
+        c_assert(!r);
+
+        c_dvar_begin_read(var, true, types, 2, data, sizeof(data));
+        c_dvar_read(var, "gs", NULL, NULL);
+        r = c_dvar_end_read(var);
+        c_assert(r == C_DVAR_E_OUT_OF_BOUNDS);
+}
+
 int main(int argc, char **argv) {
         test_basic_serialization(true);
         test_basic_serialization(false);
         test_dbus_message();
         test_dbus_body();
         test_skip();
+        test_sample0();
         return 0;
 }
