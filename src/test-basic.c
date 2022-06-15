@@ -289,7 +289,7 @@ static void test_sample0(void) {
                 C_DVAR_T_INIT(C_DVAR_T_g),
                 C_DVAR_T_INIT(C_DVAR_T_s),
         };
-        static const uint8_t data[] = {
+        static const alignas(8) uint8_t data[] = {
                 0, 0,
         };
         _c_cleanup_(c_dvar_freep) CDVar *var = NULL;
