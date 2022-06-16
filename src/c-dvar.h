@@ -63,12 +63,12 @@ typedef struct CDVarType CDVarType;
 enum {
         _C_DVAR_E_SUCCESS,
 
-        /* type/signature parser */
+        /* type/signature errors */
         C_DVAR_E_OVERLONG_TYPE,
         C_DVAR_E_DEPTH_OVERFLOW,
         C_DVAR_E_INVALID_TYPE,
 
-        /* variant parser */
+        /* data errors */
         C_DVAR_E_CORRUPT_DATA,
         C_DVAR_E_OUT_OF_BOUNDS,
         C_DVAR_E_TYPE_MISMATCH,

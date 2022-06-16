@@ -207,7 +207,7 @@ int c_dvar_next_varg(CDVar *var, char c) {
                  * by using nested variants or hand-crafted types.
                  */
                 if (_c_unlikely_(var->current >= var->levels + C_DVAR_TYPE_DEPTH_MAX - 1))
-                        return -ENOTRECOVERABLE;
+                        return C_DVAR_E_DEPTH_OVERFLOW;
 
                 /* fallthrough */
         default:
