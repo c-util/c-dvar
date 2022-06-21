@@ -42,7 +42,13 @@ static int c_dvar_write_data(CDVar *var, int alignment, const void *data, size_t
                 var->n_data = n;
         }
 
-        c_memzero(var->data + var->current->i_buffer, align);
+        /*
+         * While c_mem*(..., 0) would be safe, calculating `data + i_buffer`
+         * with `data` being NULL is not. So guard those calls.
+         */
+
+        if (align)
+                c_memzero(var->data + var->current->i_buffer, align);
         if (data)
                 memcpy(var->data + var->current->i_buffer + align, data, n_data);
 
