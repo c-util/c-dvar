@@ -1,11 +1,10 @@
 # c-dvar - D-Bus Variant Type-System
 
-## CHANGES WITH 1:
+## CHANGES WITH 1.0.0:
 
         * Initial release of c-dvar.
 
-        * TBD
+        Contributions from: Adrian Szyndela, David Rheinsberg, Evgeny
+                            Vereshchagin, Tom Gundersen
 
-        Contributions from: TBD
-
-        - TBD, YYYY-MM-DD
+        - Brno, 2022-06-22
