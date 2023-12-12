@@ -13,7 +13,7 @@ project_description = 'D-Bus Variant Type-System'
 
 mod_pkgconfig = import('pkgconfig')
 
-dep_cstdaux = dependency('libcstdaux-1')
+dep_cstdaux = dependency('libcstdaux-1', version: '>=1.5.0')
 dep_cutf8 = dependency('libcutf8-1')
 dep_typenum = dependency('libdbus-typenum', version: '>=1', required: false)
 add_project_arguments(dep_cstdaux.get_variable('cflags').split(' '), language: 'c')
