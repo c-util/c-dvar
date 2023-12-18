@@ -18,7 +18,26 @@
 #include "c-dvar.h"
 #include "c-dvar-private.h"
 
-static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_t n_data) {
+/*
+ * c_dvar_read_data() - Acquire aligned pointer into the buffer
+ * @var:                object to operate on
+ * @alignment:          data alignment to ensure (as power of 2)
+ * @datap:              output pointer
+ * @n_data:             length of data to ensure
+ *
+ * This returns a pointer into the buffer of `var` after the current reading
+ * position, suitably aligned according to `alignment`, and ensuring enough
+ * space to read `n_data` bytes.
+ *
+ * Note: This uses `const char *` as data-pointer to ensure that the caller is
+ *       aware of aliasing restrictions. As long as `char` is used, aliasing is
+ *       not an issue. But any further type-casts must be aliasing-safe.
+ *
+ * Return: 0 on success, C_DVAR_E_OUT_OF_BOUNDS if the buffer is too short,
+ *         C_DVAR_E_CORRUPT_DATA if alignment bytes are not zeroed, negative
+ *         error code on failure.
+ */
+static int c_dvar_read_data(CDVar *var, int alignment, const char **const datap, size_t n_data) {
         size_t i, align;
 
         align = c_align_to(var->current->i_buffer, 1 << alignment) - var->current->i_buffer;
@@ -35,7 +54,7 @@ static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_
                         return C_DVAR_E_CORRUPT_DATA;
 
         if (datap)
-                *datap = var->data + var->current->i_buffer + align;
+                *datap = (const char *)(var->data + var->current->i_buffer + align);
 
         var->current->i_buffer += align + n_data;
         var->current->n_buffer -= align + n_data;
@@ -43,7 +62,7 @@ static int c_dvar_read_data(CDVar *var, int alignment, const void **datap, size_
 }
 
 static int c_dvar_read_u8(CDVar *var, uint8_t *datap) {
-        const void *p;
+        const char *p;
         int r;
 
         r = c_dvar_read_data(var, 0, &p, sizeof(*datap));
@@ -54,7 +73,7 @@ static int c_dvar_read_u8(CDVar *var, uint8_t *datap) {
 }
 
 static int c_dvar_read_u16(CDVar *var, uint16_t *datap) {
-        const void *p;
+        const char *p;
         int r;
 
         r = c_dvar_read_data(var, 1, &p, sizeof(*datap));
@@ -69,7 +88,7 @@ static int c_dvar_read_u16(CDVar *var, uint16_t *datap) {
 }
 
 static int c_dvar_read_u32(CDVar *var, uint32_t *datap) {
-        const void *p;
+        const char *p;
         int r;
 
         r = c_dvar_read_data(var, 2, &p, sizeof(*datap));
@@ -84,7 +103,7 @@ static int c_dvar_read_u32(CDVar *var, uint32_t *datap) {
 }
 
 static int c_dvar_read_u64(CDVar *var, uint64_t *datap) {
-        const void *p;
+        const char *p;
         int r;
 
         r = c_dvar_read_data(var, 3, &p, sizeof(*datap));
@@ -232,7 +251,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                                 goto error;
 
                         n = u8;
-                        r = c_dvar_read_data(var, 0, (const void **)&str, n);
+                        r = c_dvar_read_data(var, 0, &str, n);
                         if (r)
                                 goto error;
 
@@ -390,7 +409,7 @@ static int c_dvar_try_vread(CDVar *var, const char *format, va_list args) {
                                         goto error;
                         }
 
-                        r = c_dvar_read_data(var, 0, (const void **)&str, u32);
+                        r = c_dvar_read_data(var, 0, &str, u32);
                         if (r)
                                 goto error;
 
