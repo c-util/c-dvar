@@ -48,7 +48,7 @@ static int c_dvar_read_u8(CDVar *var, uint8_t *datap) {
 
         r = c_dvar_read_data(var, 0, &p, sizeof(*datap));
         if (_c_likely_(!r))
-                *datap = *(const uint8_t *)p;
+                *datap = c_load_8(p, 0);
 
         return r;
 }
@@ -58,8 +58,12 @@ static int c_dvar_read_u16(CDVar *var, uint16_t *datap) {
         int r;
 
         r = c_dvar_read_data(var, 1, &p, sizeof(*datap));
-        if (_c_likely_(!r))
-                *datap = c_dvar_bswap16(var, *(const uint16_t *)p);
+        if (_c_likely_(!r)) {
+                if (var->big_endian)
+                        *datap = c_load_16be_aligned(p, 0);
+                else
+                        *datap = c_load_16le_aligned(p, 0);
+        }
 
         return r;
 }
@@ -69,8 +73,12 @@ static int c_dvar_read_u32(CDVar *var, uint32_t *datap) {
         int r;
 
         r = c_dvar_read_data(var, 2, &p, sizeof(*datap));
-        if (_c_likely_(!r))
-                *datap = c_dvar_bswap32(var, *(const uint32_t *)p);
+        if (_c_likely_(!r)) {
+                if (var->big_endian)
+                        *datap = c_load_32be_aligned(p, 0);
+                else
+                        *datap = c_load_32le_aligned(p, 0);
+        }
 
         return r;
 }
@@ -80,8 +88,12 @@ static int c_dvar_read_u64(CDVar *var, uint64_t *datap) {
         int r;
 
         r = c_dvar_read_data(var, 3, &p, sizeof(*datap));
-        if (_c_likely_(!r))
-                *datap = c_dvar_bswap64(var, *(const uint64_t *)p);
+        if (_c_likely_(!r)) {
+                if (var->big_endian)
+                        *datap = c_load_64be_aligned(p, 0);
+                else
+                        *datap = c_load_64le_aligned(p, 0);
+        }
 
         return r;
 }
