@@ -150,7 +150,7 @@ static void test_dbus_message(void) {
         c_dvar_write(var, "(yyyyuu[", 0, 0, 0, 0, 0, 0);
         c_dvar_write(var, "(y<u>)", 0, c_dvar_type_u, 0);
         c_dvar_write(var, "(y<y>)", 0, c_dvar_type_y, 0);
-        c_dvar_write(var, "](st))", "", 0);
+        c_dvar_write(var, "](st))", "", UINT64_C(0));
 
         r = c_dvar_end_write(var, &data, &n_data);
         c_assert(!r);
