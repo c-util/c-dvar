@@ -1,5 +1,14 @@
 # c-dvar - D-Bus Variant Type-System
 
+## CHANGES WITH 1.2.0:
+
+        * Fix the variant-reader to use aliasing-safe accessors. This allows
+          parallel use of the variant-buffers with possibly aliasing pointers.
+
+        Contributions from: David Rheinsberg, Kostadin Shishmanov
+
+        - Dußlingen, 2025-06-16
+
 ## CHANGES WITH 1.1.0:
 
         * Update the c-stdaux dependency to provide the new build variables
