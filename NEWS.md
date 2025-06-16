@@ -1,5 +1,13 @@
 # c-dvar - D-Bus Variant Type-System
 
+## CHANGES WITH X.Y.Z:
+
+        * Fix a var-arg error in the test-suite.
+
+        Contributions from: David Rheinsberg, Sinkevich Artem
+
+        - XYZ, YYYY-MM-DD
+
 ## CHANGES WITH 1.2.0:
 
         * Fix the variant-reader to use aliasing-safe accessors. This allows
