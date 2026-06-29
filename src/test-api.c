@@ -35,21 +35,21 @@ static void test_api(void) {
 
         /* builtin */
 
-        assert(c_dvar_type_y);
-        assert(c_dvar_type_b);
-        assert(c_dvar_type_n);
-        assert(c_dvar_type_q);
-        assert(c_dvar_type_i);
-        assert(c_dvar_type_u);
-        assert(c_dvar_type_x);
-        assert(c_dvar_type_t);
-        assert(c_dvar_type_h);
-        assert(c_dvar_type_d);
-        assert(c_dvar_type_s);
-        assert(c_dvar_type_o);
-        assert(c_dvar_type_g);
-        assert(c_dvar_type_v);
-        assert(c_dvar_type_unit);
+        assert(c_dvar_type_y != NULL);
+        assert(c_dvar_type_b != NULL);
+        assert(c_dvar_type_n != NULL);
+        assert(c_dvar_type_q != NULL);
+        assert(c_dvar_type_i != NULL);
+        assert(c_dvar_type_u != NULL);
+        assert(c_dvar_type_x != NULL);
+        assert(c_dvar_type_t != NULL);
+        assert(c_dvar_type_h != NULL);
+        assert(c_dvar_type_d != NULL);
+        assert(c_dvar_type_s != NULL);
+        assert(c_dvar_type_o != NULL);
+        assert(c_dvar_type_g != NULL);
+        assert(c_dvar_type_v != NULL);
+        assert(c_dvar_type_unit != NULL);
 
         /* type handling */
 
